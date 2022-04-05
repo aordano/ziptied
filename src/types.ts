@@ -16,6 +16,8 @@ export interface NodeActionRef<Payload> {
     payload?: Payload;
 }
 
+export type Transform<Data> = (data: Data) => Data;
+
 // TODO Extend this adding metadata and stuff
 export type OnErrorHandler = (error: Error) => void;
 
