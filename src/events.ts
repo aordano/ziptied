@@ -17,6 +17,7 @@ export class ActiveEvent<EventData> {
     ) {
         const source = fromEvent(window, event);
         this._stream = source.pipe(map(mapFunction));
+        this._subscriptions = {};
     }
 
     protected _stream: Observable<EventData>;
@@ -32,45 +33,46 @@ export class ActiveEvent<EventData> {
     }
 }
 
-export class ActiveCustomEvent<
-    EventData,
-    EventImplementation extends Event,
-    Target extends
-        | HasEventTargetAddRemove<EventImplementation>
-        | ArrayLike<HasEventTargetAddRemove<EventImplementation>>
-> {
-    constructor(
-        event: string,
-        target: Target,
-        mapFunction: (value: Target, data?: unknown) => EventData,
-        middleware?: OperatorFunction<
-            EventImplementation | Target,
-            EventImplementation | Target
-        >
-    ) {
-        const source = fromEvent(target, event);
-        this._stream = source.pipe(middleware, map(mapFunction));
-    }
+// fixme i actually no longer understand this, review, but now it does not even work
+// export class ActiveCustomEvent<
+//     EventData,
+//     EventImplementation extends Event,
+//     Target extends
+//         | HasEventTargetAddRemove<EventImplementation>
+//         | ArrayLike<HasEventTargetAddRemove<EventImplementation>>
+// > {
+//     constructor(
+//         event: string,
+//         target: Target,
+//         mapFunction: (value: Target, data?: unknown) => EventData,
+//         middleware?: OperatorFunction<EventImplementation, Target>
+//     ) {
+//         const source = fromEvent(target, event);
+//         this._stream = middleware
+//             ? source.pipe(middleware, map(mapFunction))
+//             : source.pipe(target, map(mapFunction));
+//     }
 
-    protected _stream: Observable<EventData>;
+//     protected _stream: Observable<EventData>;
 
-    protected _subscriptions: Record<string, Subscription>;
+//     protected _subscriptions: Record<string, Subscription>;
 
-    public subscribe(id: string, observer: Partial<Observer<EventData>>): void {
-        this._subscriptions[id] = this._stream.subscribe(observer);
-    }
+//     public subscribe(id: string, observer: Partial<Observer<EventData>>): void {
+//         this._subscriptions[id] = this._stream.subscribe(observer);
+//     }
 
-    public unsubscribe(id: string): void {
-        this._subscriptions[id].unsubscribe();
-    }
-}
+//     public unsubscribe(id: string): void {
+//         this._subscriptions[id].unsubscribe();
+//     }
+// }
 export class MediaQuery {
     constructor(query: string) {
         this._query = query;
         const mediaQuery = window.matchMedia(query);
         this._stream = fromEvent(mediaQuery, "change").pipe(
-            startWith(mediaQuery),
-            map((list: MediaQueryList) => list.matches)
+            // HACK dunno why i need to specify that the media query list is not an event
+            startWith(mediaQuery) as OperatorFunction<Event, MediaQueryList>,
+            map((list: typeof mediaQuery) => list.matches)
         );
     }
 
