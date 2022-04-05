@@ -1,10 +1,11 @@
 {
-    "name": "magnetic",
-    "version": "0.1.0",
+    "name": "magnetic-js",
+    "version": "0.1.2",
     "description": "Easy reactive framework to stick on top of static sites for reactivity and modern features.",
-    "main": "src/index.js",
+    "main": "dist/index.js",
     "scripts": {
-        "test": "ava"
+        "test": "ava",
+        "build": "tsc"
     },
     "repository": {
         "type": "git",
