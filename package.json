@@ -1,0 +1,37 @@
+{
+    "name": "magnetic",
+    "version": "0.1.0",
+    "description": "Easy reactive framework to stick on top of static sites for reactivity and modern features.",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "ava"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/nodoambiental/magnetic.git"
+    },
+    "keywords": [],
+    "author": {
+        "name": "Ágata Ordano",
+        "email": "ordanoagata@gmail.com"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/nodoambiental/magnetic/issues"
+    },
+    "homepage": "https://github.com/nodoambiental/magnetic#readme",
+    "devDependencies": {
+        "ava": "^3.15.0",
+        "typescript": "^4.5.4",
+        "@commitlint/cli": "^16.0.1",
+        "@commitlint/config-conventional": "^16.0.0",
+        "@commitlint/cz-commitlint": "^16.0.0",
+        "commitizen": "^4.2.4",
+        "husky": "^7.0.4"
+    },
+    "config": {
+        "commitizen": {
+            "path": "@commitlint/cz-commitlint"
+        }
+    }
+}
