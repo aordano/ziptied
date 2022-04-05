@@ -1,6 +1,6 @@
 {
     "name": "magnetic-js",
-    "version": "0.1.2",
+    "version": "0.1.2-hf1",
     "description": "Easy reactive framework to stick on top of static sites for reactivity and modern features.",
     "main": "dist/index.js",
     "scripts": {
