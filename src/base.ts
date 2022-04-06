@@ -132,7 +132,7 @@ export class Node {
         if (this._isComponent) {
             this._nodeElement = () => {
                 const element = document.querySelector(
-                    `[data-mag-id="${id}"]`
+                    `[data-zt-id="${id}"]`
                 ) as HTMLElement | null;
                 if (!element) {
                     throw new Error(

@@ -8,7 +8,7 @@ import { fromEvent, Subscription, Observer } from "rxjs";
 import short from "short-uuid";
 import { Node, StatefulNode, State } from "./base";
 
-export abstract class BaseComponentTemplate {
+abstract class BaseComponentTemplate {
     constructor(
         protected className: string,
         ids: string[],
@@ -67,7 +67,7 @@ export abstract class BaseComponentTemplate {
     }
 }
 
-export class ComponentTemplate extends BaseComponentTemplate {
+class ComponentTemplate extends BaseComponentTemplate {
     constructor(
         protected className: string,
         onError?: Observer<HTMLElement>["error"],
@@ -84,11 +84,11 @@ export class ComponentTemplate extends BaseComponentTemplate {
         ).forEach((element) => {
             const newId = short.generate();
             const doesExist = () => {
-                const node = document.querySelector(`[data-mag-id="${newId}"]`);
+                const node = document.querySelector(`[data-zt-id="${newId}"]`);
                 return !!node;
             };
             if (!doesExist()) {
-                element.dataset.magId = newId;
+                element.dataset.ztId = newId;
             }
             ids.push(newId);
             elements[newId] = new Node(newId, onError, onLifecycle, true);
@@ -97,9 +97,7 @@ export class ComponentTemplate extends BaseComponentTemplate {
     }
 }
 
-export class StatefulComponentTemplate<
-    StateData
-> extends BaseComponentTemplate {
+class StatefulComponentTemplate<StateData> extends BaseComponentTemplate {
     constructor(
         protected className: string,
         initialState: StateData,
@@ -117,11 +115,11 @@ export class StatefulComponentTemplate<
         ).forEach((element) => {
             const newId = short.generate();
             const doesExist = () => {
-                const node = document.querySelector(`[data-mag-id="${newId}"]`);
+                const node = document.querySelector(`[data-zt-id="${newId}"]`);
                 return !!node;
             };
             if (!doesExist()) {
-                element.dataset.magId = newId;
+                element.dataset.ztId = newId;
             }
             ids.push(newId);
             elements[newId] = new StatefulNode(
@@ -146,7 +144,7 @@ export class StatefulComponentTemplate<
     // TODO add method to transform the local state
 }
 
-export abstract class BaseComponent<Template extends BaseComponentTemplate> {
+abstract class BaseComponent<Template extends BaseComponentTemplate> {
     constructor(
         name: string,
         components: Template,
@@ -154,7 +152,7 @@ export abstract class BaseComponent<Template extends BaseComponentTemplate> {
         onLifecycle?: Observer<HTMLElement>["complete"]
     ) {
         // TODO Handle SharedState initialization
-        this._name = `mag-${name}`;
+        this._name = `zt-${name}`;
         this._components = components;
     }
 
@@ -165,7 +163,7 @@ export abstract class BaseComponent<Template extends BaseComponentTemplate> {
     // TODO populate the regenerate method on the component definition
     // public regenerate(): void {
     //     this._components = new ComponentTemplate(
-    //         `mag-${this._name}`,
+    //         `zt-${this._name}`,
     //         onError,
     //         onLifecycle
     //     );
@@ -240,7 +238,7 @@ export abstract class BaseComponent<Template extends BaseComponentTemplate> {
 
         this._components.ids.forEach((elementId) => {
             const element = document.querySelector(
-                `[data-mag-id="${elementId}"]`
+                `[data-zt-id="${elementId}"]`
             ) as HTMLElement | null;
             if (element) {
                 fromEvent(element, event).subscribe({
