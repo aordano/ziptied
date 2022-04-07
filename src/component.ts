@@ -1,18 +1,20 @@
 import type {
     NodeAction,
+    NodeActionRequired,
     OnErrorHandler,
     OnLifecycleHandler,
     Transform,
 } from "./types";
-import { fromEvent, Subscription, Observer } from "rxjs";
+import { canonicalize } from "./util";
+import { fromEvent, Subscription, Observer, Observable } from "rxjs";
 import short from "short-uuid";
 import { Node, StatefulNode, State } from "./base";
 
-abstract class BaseComponentTemplate {
+abstract class BaseComponentTemplate<NodeType extends Node> {
     constructor(
         protected className: string,
         ids: string[],
-        _elements: Record<string, Node>
+        _elements: Record<string, NodeType>
     ) {
         this.ids = ids;
         this._elements = _elements;
@@ -20,9 +22,13 @@ abstract class BaseComponentTemplate {
 
     // TODO Add method to check if there are new elements with the class name and regenerate them
 
-    protected _elements: Record<string, Node>;
+    protected _elements: Record<string, NodeType>;
 
     public ids: string[];
+
+    public get actionsList() {
+        return this._elements[this.ids[0]].actionsList;
+    }
 
     public addAction(
         actionId: string,
@@ -52,10 +58,6 @@ abstract class BaseComponentTemplate {
         });
     }
 
-    public get actionsList() {
-        return this._elements[this.ids[0]].actionsList;
-    }
-
     public sideEffect(
         observer: Partial<Observer<HTMLElement>>
     ): Subscription[] {
@@ -65,11 +67,48 @@ abstract class BaseComponentTemplate {
         });
         return subs;
     }
+
+    public addActionFor(
+        actionId: string,
+        elementId: string,
+        action: NodeAction<any>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ) {
+        this._elements[elementId].addAction(
+            actionId,
+            action,
+            onError,
+            onLifecycle
+        );
+    }
+
+    public removeActionFrom(actionId: string, elementId: string) {
+        this._elements[elementId].removeAction(actionId);
+    }
+
+    public fireActionFor(
+        actionId: string,
+        elementId: string,
+        payload?: unknown
+    ) {
+        this._elements[elementId].fireAction(actionId, payload);
+    }
+
+    public sideEffectFor(
+        elementId: string,
+        observer: Partial<Observer<HTMLElement>>
+    ): Subscription[] {
+        const subs: Subscription[] = [];
+        subs.push(this._elements[elementId].sideEffect(observer));
+        return subs;
+    }
 }
 
-class ComponentTemplate extends BaseComponentTemplate {
+class ComponentTemplate extends BaseComponentTemplate<Node> {
     constructor(
         protected className: string,
+        prepare?: NodeAction<any>,
         onError?: Observer<HTMLElement>["error"],
         onLifecycle?: Observer<HTMLElement>["complete"]
     ) {
@@ -84,7 +123,9 @@ class ComponentTemplate extends BaseComponentTemplate {
         ).forEach((element) => {
             const newId = short.generate();
             const doesExist = () => {
-                const node = document.querySelector(`[data-zt-id="${newId}"]`);
+                const node = document.querySelector(
+                    `[data-${canonicalize("id")}="${newId}"]`
+                );
                 return !!node;
             };
             if (!doesExist()) {
@@ -92,20 +133,27 @@ class ComponentTemplate extends BaseComponentTemplate {
             }
             ids.push(newId);
             elements[newId] = new Node(newId, onError, onLifecycle, true);
+            if (prepare) {
+                elements[newId].addAction("prepare", prepare);
+                elements[newId].fireAction("prepare");
+            }
         });
         super(className, ids, elements);
     }
 }
 
-class StatefulComponentTemplate<StateData> extends BaseComponentTemplate {
+class StatefulComponentTemplate<LocalState> extends BaseComponentTemplate<
+    StatefulNode<LocalState>
+> {
     constructor(
         protected className: string,
-        initialState: StateData,
+        initialState: LocalState,
+        prepare?: NodeAction<any>,
         onError?: Observer<HTMLElement>["error"],
         onLifecycle?: Observer<HTMLElement>["complete"]
     ) {
         const ids: string[] = [];
-        const elements: Record<string, Node> = {};
+        const elements: Record<string, StatefulNode<LocalState>> = {};
         Array.from(
             // Might look hacky to select by class instead of attribute but makes
             // bolting the component to elements much much easier and cleaner
@@ -115,7 +163,9 @@ class StatefulComponentTemplate<StateData> extends BaseComponentTemplate {
         ).forEach((element) => {
             const newId = short.generate();
             const doesExist = () => {
-                const node = document.querySelector(`[data-zt-id="${newId}"]`);
+                const node = document.querySelector(
+                    `[data-${canonicalize("id")}="${newId}"]`
+                );
                 return !!node;
             };
             if (!doesExist()) {
@@ -129,30 +179,34 @@ class StatefulComponentTemplate<StateData> extends BaseComponentTemplate {
                 onLifecycle,
                 true
             );
+            if (prepare) {
+                elements[newId].addAction("prepare", prepare);
+                elements[newId].fireAction("prepare");
+            }
         });
         super(className, ids, elements);
     }
 
-    // TODO add return types
-    public getLocalState(id: string) {
-        // TODO handle using State
-        //return this._elements[id].state;
+    public getLocalState(id: string): LocalState {
+        return this._elements[id].state;
     }
 
-    // TODO add method to set the local state
+    public setLocalState(id: string, newState: LocalState): void {
+        this._elements[id].setState(newState);
+    }
 
-    // TODO add method to transform the local state
+    public transformLocalState(
+        id: string,
+        transform: Transform<LocalState>
+    ): void {
+        this._elements[id].transformState(transform);
+    }
 }
 
-abstract class BaseComponent<Template extends BaseComponentTemplate> {
-    constructor(
-        name: string,
-        components: Template,
-        onError?: Observer<HTMLElement>["error"],
-        onLifecycle?: Observer<HTMLElement>["complete"]
-    ) {
+abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
+    constructor(name: string, components: Template) {
         // TODO Handle SharedState initialization
-        this._name = `zt-${name}`;
+        this._name = name;
         this._components = components;
     }
 
@@ -185,6 +239,22 @@ abstract class BaseComponent<Template extends BaseComponentTemplate> {
         });
     }
 
+    public addAction<Data>(name: string, action: NodeAction<Data>) {
+        this._components.addAction(name, action);
+    }
+
+    public fireAction(name: string) {
+        this._components.fireAction(name);
+    }
+
+    public instantAction<Data>(action: NodeAction<Data>) {
+        this._components.addAction(
+            `RESERVED_${canonicalize("anonymous")}`,
+            action
+        );
+        this._components.fireAction(`RESERVED_${canonicalize("anonymous")}`);
+    }
+
     public onUpdate(
         action: NodeAction<any>,
         onError?: OnErrorHandler,
@@ -200,8 +270,27 @@ abstract class BaseComponent<Template extends BaseComponentTemplate> {
         });
     }
 
+    public addSideEffect<Data>(
+        effectName: string,
+        action: NodeAction<Data>,
+        stateHolder: State<Data>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ) {
+        console.info(
+            `Added global effect "${effectName}" to component ${this._name}`
+        );
+
+        this._components.addAction(effectName, action);
+        stateHolder.subscribe({
+            next: (data) => this._components.fireAction(effectName, data),
+            error: onError,
+            complete: onLifecycle,
+        });
+    }
+
     // FIXME for some reason the event stuff is not working
-    public onEventGlobal(
+    public onEvent(
         event: string,
         action: NodeAction<any>,
         onError?: OnErrorHandler,
@@ -224,9 +313,178 @@ abstract class BaseComponent<Template extends BaseComponentTemplate> {
         });
     }
 
-    public onEventLocal(
+    public onEventLocal<LocalEvent extends Event>(
+        eventName: string,
+        action: NodeAction<LocalEvent>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ) {
+        console.info(
+            `Added local event listener to component ${this._name} for "${eventName}"`
+        );
+
+        this._components.addAction(eventName, action);
+
+        this._components.ids.forEach((elementId: string) => {
+            const element = document.querySelector(
+                `[data-${canonicalize("id")}="${elementId}"]`
+            ) as HTMLElement | null;
+            if (element) {
+                fromEvent(element, eventName).subscribe({
+                    next: (event) => {
+                        console.info(
+                            `Received local event "${event.type}" on component "${this._name}" with id "${elementId}"`
+                        );
+                        this._components.fireActionFor(
+                            eventName,
+                            elementId,
+                            event
+                        );
+                    },
+                    error: onError,
+                    complete: onLifecycle,
+                });
+            }
+        });
+    }
+}
+
+export class Component extends BaseComponent<ComponentTemplate> {
+    constructor(
+        name: string,
+        prepare?: NodeAction<any>,
+        onError?: Observer<HTMLElement>["error"],
+        onLifecycle?: Observer<HTMLElement>["complete"]
+    ) {
+        const template = new ComponentTemplate(
+            canonicalize(name),
+            prepare,
+            onError,
+            onLifecycle
+        );
+        super(canonicalize(name), template);
+    }
+}
+
+export class StatefulComponent<
+    SharedState
+> extends BaseComponent<ComponentTemplate> {
+    constructor(
+        name: string,
+        initialSharedState: SharedState,
+        prepare?: NodeAction<SharedState>,
+        onError?: Observer<HTMLElement>["error"],
+        onLifecycle?: Observer<HTMLElement>["complete"]
+    ) {
+        const template = new ComponentTemplate(
+            canonicalize(name),
+            prepare,
+            onError,
+            onLifecycle
+        );
+        super(canonicalize(name), template);
+        this._sharedState = new State(initialSharedState);
+        this._sharedStateValue = initialSharedState;
+        this._sharedState.subscribe({
+            next: (value) => (this._sharedStateValue = value),
+        });
+    }
+
+    protected _sharedState: State<SharedState>;
+
+    protected _sharedStateValue: SharedState;
+
+    get sharedState(): SharedState {
+        return this._sharedStateValue;
+    }
+
+    set sharedState(data) {
+        throw new Error(
+            "Shared state is readonly. Use the methods to modify it."
+        );
+    }
+
+    public setSharedState(newState: SharedState): void {
+        this._sharedState.update(newState);
+    }
+
+    public transformSharedState(transform: Transform<SharedState>): void {
+        this._sharedState.update(transform(this._sharedStateValue));
+    }
+
+    public addStatefulAction<SharedState>(
+        name: string,
+        action: NodeActionRequired<SharedState>
+    ) {
+        this._components.addAction(name, (node: HTMLElement) =>
+            action(node, this.sharedState as unknown as SharedState)
+        );
+    }
+}
+
+export class DeepStatefulComponent<
+    LocalState,
+    SharedState
+> extends BaseComponent<StatefulComponentTemplate<LocalState>> {
+    constructor(
+        name: string,
+        initialLocalState: LocalState,
+        initialSharedState: SharedState,
+        prepare?: NodeAction<{ shared: SharedState; local: LocalState }>,
+        onError?: Observer<HTMLElement>["error"],
+        onLifecycle?: Observer<HTMLElement>["complete"]
+    ) {
+        const template = new StatefulComponentTemplate<LocalState>(
+            canonicalize(name),
+            initialLocalState,
+            prepare,
+            onError,
+            onLifecycle
+        );
+        super(canonicalize(name), template);
+        this._sharedState = new State(initialSharedState);
+        this._sharedStateValue = initialSharedState;
+        this._sharedState.subscribe({
+            next: (value) => (this._sharedStateValue = value),
+        });
+    }
+
+    protected _sharedState: State<SharedState>;
+
+    protected _sharedStateValue: SharedState;
+
+    get sharedState(): SharedState {
+        return this._sharedStateValue;
+    }
+
+    set sharedState(data) {
+        throw new Error(
+            "Shared state is readonly. Use the methods to modify it."
+        );
+    }
+
+    public setSharedState(newState: SharedState): void {
+        this._sharedState.update(newState);
+    }
+
+    public transformSharedState(transform: Transform<SharedState>): void {
+        this._sharedState.update(transform(this._sharedStateValue));
+    }
+
+    public addStatefulAction<SharedState>(
+        name: string,
+        action: NodeActionRequired<SharedState>
+    ) {
+        this._components.addAction(name, (node: HTMLElement) =>
+            action(node, this.sharedState as unknown as SharedState)
+        );
+    }
+
+    // TODO add better way to handle the local state of each element
+    public onEventLocalStateful(
         event: string,
-        action: NodeAction<any>,
+        state: LocalState,
+        action: NodeAction<LocalState>,
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
     ) {
@@ -234,11 +492,15 @@ abstract class BaseComponent<Template extends BaseComponentTemplate> {
             `Added local event listener to component ${this._name} for "${event}"`
         );
 
-        this._components.addAction(`on${event}`, action);
+        const statefulAction = (node: HTMLElement): HTMLElement => {
+            return action(node, state);
+        };
+
+        this._components.addAction(`on${event}`, statefulAction);
 
         this._components.ids.forEach((elementId) => {
             const element = document.querySelector(
-                `[data-zt-id="${elementId}"]`
+                `[data-${canonicalize("id")}="${elementId}"]`
             ) as HTMLElement | null;
             if (element) {
                 fromEvent(element, event).subscribe({
@@ -253,116 +515,5 @@ abstract class BaseComponent<Template extends BaseComponentTemplate> {
                 });
             }
         });
-    }
-}
-
-export class Component extends BaseComponent<ComponentTemplate> {
-    constructor(
-        name: string,
-        onError?: Observer<HTMLElement>["error"],
-        onLifecycle?: Observer<HTMLElement>["complete"]
-    ) {
-        const template = new ComponentTemplate(name, onError, onLifecycle);
-        super(name, template, onError, onLifecycle);
-    }
-}
-
-export class StatefulComponent<
-    SharedState
-> extends BaseComponent<ComponentTemplate> {
-    constructor(
-        name: string,
-        initialSharedState: SharedState,
-        onError?: Observer<HTMLElement>["error"],
-        onLifecycle?: Observer<HTMLElement>["complete"]
-    ) {
-        const template = new ComponentTemplate(name, onError, onLifecycle);
-        super(name, template, onError, onLifecycle);
-        this._sharedState = new State(initialSharedState);
-    }
-
-    protected _sharedState: State<SharedState>;
-
-    // TODO add return type SharedState
-    get sharedState() {
-        // TODO update to actually use the State
-        return this._sharedState;
-    }
-
-    set sharedState(data) {
-        throw new Error(
-            "Shared state is readonly. Use the methods to modify it."
-        );
-    }
-
-    // TODO add return types
-    public setSharedState(state: SharedState) {
-        // TODO update to actually use the State
-        //this._sharedState = state;
-    }
-
-    // TODO add return types
-    public transformSharedState(transform: Transform<SharedState>) {
-        // TODO update to actually use the State
-        //this._sharedState = transform(this._sharedState);
-    }
-}
-
-export class DeepStatefulComponent<
-    LocalState,
-    SharedState
-> extends BaseComponent<StatefulComponentTemplate<SharedState>> {
-    constructor(
-        name: string,
-        initialLocalState: LocalState,
-        initialSharedState: SharedState,
-        onError?: Observer<HTMLElement>["error"],
-        onLifecycle?: Observer<HTMLElement>["complete"]
-    ) {
-        const template = new StatefulComponentTemplate<LocalState>(
-            name,
-            initialLocalState,
-            onError,
-            onLifecycle
-        );
-        super(name, template, onError, onLifecycle);
-        this._sharedState = new State(initialSharedState);
-    }
-
-    protected _sharedState: State<SharedState>;
-
-    // TODO add return type SharedState
-    get sharedState() {
-        // TODO update to actually use the State
-        return this._sharedState;
-    }
-
-    set sharedState(data) {
-        throw new Error(
-            "Shared state is readonly. Use the methods to modify it."
-        );
-    }
-
-    // TODO add return types
-    public setSharedState(state: SharedState) {
-        // TODO update to actually use the State
-        //this._sharedState = state;
-    }
-
-    // TODO add return types
-    public transformSharedState(transform: Transform<SharedState>) {
-        // TODO update to actually use the State
-        //this._sharedState = transform(this._sharedState);
-    }
-
-    // TODO add way to handle the local state of each element
-    public onEventLocalStateful(
-        event: string,
-        action: NodeAction<any>,
-        state: LocalState,
-        onError?: OnErrorHandler,
-        onLifecycle?: OnLifecycleHandler
-    ) {
-        // TODO
     }
 }
