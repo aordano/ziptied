@@ -9,7 +9,7 @@ import type {
 } from "./types";
 import {
     map,
-    fromEvent,
+    Observable,
     BehaviorSubject,
     Subject,
     Subscription,
@@ -105,9 +105,6 @@ export class State<Data> {
         this.initialState = initialState;
         this._state = new BehaviorSubject<Data>(initialState);
     }
-
-    // ? what was this for?
-    //public subscription: Subscription;
 
     protected _state: BehaviorSubject<Data>;
 
@@ -236,30 +233,30 @@ export class StatefulNode<StateData> extends Node {
         super(id, onError, onLifecycle, isComponent);
 
         this._state = new State(initialState);
+        this._stateValue = initialState;
+        this._state.subscribe({
+            next: (value) => (this._stateValue = value),
+        });
     }
 
     protected _state: State<StateData>;
 
-    // TODO add return type SharedState
-    get state() {
-        // TODO update to actually use the State
-        return this._state;
+    protected _stateValue: StateData;
+
+    get state(): StateData {
+        return this._stateValue;
     }
 
     set state(data) {
         throw new Error("State is readonly. Use the methods to modify it.");
     }
 
-    // TODO add return types
-    public setState(state: StateData) {
-        // TODO update to actually use the State
-        //this._state = state;
+    public setState(newState: StateData): void {
+        this._state.update(newState);
     }
 
-    // TODO add return types
-    public transformState(transform: Transform<StateData>) {
-        // TODO update to actually use the State
-        //this._state = transform(this._state);
+    public transformState(transform: Transform<StateData>): void {
+        this._state.update(transform(this._stateValue));
     }
 }
 
