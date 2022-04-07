@@ -11,6 +11,13 @@ export type NodeAction<Payload> = (
     payload?: Payload
 ) => HTMLElement;
 
+export type NodeActionRequired<Payload> = (
+    node: HTMLElement,
+    payload: Payload
+) => HTMLElement;
+
+export type NodeActionImpure = (node: HTMLElement) => HTMLElement;
+
 export interface NodeActionRef<Payload> {
     id: string;
     payload?: Payload;
