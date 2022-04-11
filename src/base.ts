@@ -222,41 +222,69 @@ export class Node {
     }
 }
 
-export class StatefulNode<StateData> extends Node {
+export class StatefulNode extends Node {
     constructor(
         protected id: string,
-        initialState: StateData,
+        initialState: any,
         onError?: Observer<HTMLElement>["error"],
         onLifecycle?: Observer<HTMLElement>["complete"],
         isComponent?: boolean
     ) {
         super(id, onError, onLifecycle, isComponent);
 
-        this._state = new State(initialState);
-        this._stateValue = initialState;
-        this._state.subscribe({
-            next: (value) => (this._stateValue = value),
+        this._states = {};
+        this._stateValues = {};
+        this._states["default"] = new State(initialState);
+        this._states["default"].subscribe({
+            next: (value) => (this._stateValues["default"] = value),
         });
     }
 
-    protected _state: State<StateData>;
+    protected _states: Record<string, State<any>>;
 
-    protected _stateValue: StateData;
+    protected _stateValues: Record<string, any>;
 
-    get state(): StateData {
-        return this._stateValue;
+    public getState(stateKey?: string): any {
+        return this._stateValues[stateKey ?? "default"];
     }
 
-    set state(data) {
-        throw new Error("State is readonly. Use the methods to modify it.");
+    public getStateObject(stateKey?: string): State<any> {
+        return this._states[stateKey ?? "default"];
     }
 
-    public setState(newState: StateData): void {
-        this._state.update(newState);
+    public setState(newState: unknown, stateKey?: string): void {
+        // console.log(
+        //     `Setting state for node ${this.id}, key ${stateKey}, with the data ${newState}`
+        // );
+        if (this._states[stateKey ?? "default"]) {
+            this._states[stateKey ?? "default"].update(newState);
+        } else {
+            this._states[stateKey ?? "default"] = new State(newState);
+            this._states[stateKey ?? "default"].subscribe({
+                next: (value) =>
+                    (this._stateValues[stateKey ?? "default"] = value),
+            });
+        }
     }
 
-    public transformState(transform: Transform<StateData>): void {
-        this._state.update(transform(this._stateValue));
+    public transformState(
+        transform: Transform<unknown>,
+        stateKey?: string
+    ): void {
+        this._states[stateKey ?? "default"].update(
+            transform(this._stateValues[stateKey ?? "default"])
+        );
+    }
+
+    public sideEffectStateful(
+        action: NodeAction<any>,
+        stateKey?: string
+    ): Subscription {
+        return this._states[stateKey ?? "default"].subscribe({
+            next: (state) => {
+                action(this._nodeElement(), state);
+            },
+        });
     }
 }
 
