@@ -30,3 +30,21 @@ export type OnErrorHandler = (error: Error) => void;
 
 // TODO Extend this adding metadata and stuff
 export type OnLifecycleHandler = () => void;
+
+export type TextReplacerState<
+    Selector extends string,
+    Corpus extends Record<Selector, Record<string, string>>
+> = {
+    selected: Selector;
+    corpus: Corpus;
+};
+
+export const isStringExtension = <
+    Selector extends string,
+    Container extends Record<Selector, unknown>
+>(
+    key: unknown,
+    container: Container
+): key is Selector => {
+    return (key as Selector) in container ? true : false;
+};
