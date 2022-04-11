@@ -142,18 +142,16 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
     }
 }
 
-class StatefulComponentTemplate<LocalState> extends BaseComponentTemplate<
-    StatefulNode<LocalState>
-> {
+class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
     constructor(
         protected className: string,
-        initialState: LocalState,
+        initialState: any,
         prepare?: NodeAction<any>,
         onError?: Observer<HTMLElement>["error"],
         onLifecycle?: Observer<HTMLElement>["complete"]
     ) {
         const ids: string[] = [];
-        const elements: Record<string, StatefulNode<LocalState>> = {};
+        const elements: Record<string, StatefulNode> = {};
         Array.from(
             // Might look hacky to select by class instead of attribute but makes
             // bolting the component to elements much much easier and cleaner
@@ -187,19 +185,46 @@ class StatefulComponentTemplate<LocalState> extends BaseComponentTemplate<
         super(className, ids, elements);
     }
 
-    public getLocalState(id: string): LocalState {
-        return this._elements[id].state;
+    public getLocalState(id: string, stateKey?: string): any {
+        return this._elements[id].getState(stateKey);
     }
 
-    public setLocalState(id: string, newState: LocalState): void {
-        this._elements[id].setState(newState);
+    public getLocalStateObject(id: string, stateKey?: string): State<any> {
+        return this._elements[id].getStateObject(stateKey);
+    }
+
+    public setLocalState(id: string, newState: any, stateKey?: string): void {
+        this._elements[id].setState(newState, stateKey);
     }
 
     public transformLocalState(
         id: string,
-        transform: Transform<LocalState>
+        transform: Transform<any>,
+        stateKey?: string
     ): void {
-        this._elements[id].transformState(transform);
+        this._elements[id].transformState(transform, stateKey);
+    }
+
+    public sideEffectStateful(
+        action: NodeAction<any>,
+        stateKey: string
+    ): Subscription[] {
+        const subs: Subscription[] = [];
+        this.ids.forEach((id) => {
+            subs.push(this._elements[id].sideEffectStateful(action, stateKey));
+        });
+        return subs;
+    }
+
+    public sideEffectStatefulFor<LocalState>(
+        elementId: string,
+        action: NodeAction<LocalState>
+    ): Subscription[] {
+        const subs: Subscription[] = [];
+        // HACK no idea why this is happening but i guess it's because the static analyzer is unable to tell that elementId actually is in _elements
+        // @ts-ignore: Compiler is being stupid and saying the types are unrelated
+        subs.push(this._elements[elementId].sideEffectStateful(action));
+        return subs;
     }
 }
 
@@ -277,9 +302,9 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
     ) {
-        console.info(
-            `Added global effect "${effectName}" to component ${this._name}`
-        );
+        // console.info(
+        //     `Added global effect "${effectName}" to component ${this._name}`
+        // );
 
         this._components.addAction(effectName, action);
         stateHolder.subscribe({
@@ -296,16 +321,16 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
     ) {
-        console.info(
-            `Added global event listener to component ${this._name} for "${event}"`
-        );
+        // console.info(
+        //     `Added global event listener to component ${this._name} for "${event}"`
+        // );
 
         this._components.addAction(`on${event}`, action);
         fromEvent(window, event).subscribe({
             next: (event) => {
-                console.info(
-                    `Received global event "${event.type}" on component "${this._name}"`
-                );
+                // console.info(
+                //     `Received global event "${event.type}" on component "${this._name}"`
+                // );
                 this._components.fireAction(`on${event}`, event);
             },
             error: onError,
@@ -319,9 +344,9 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
     ) {
-        console.info(
-            `Added local event listener to component ${this._name} for "${eventName}"`
-        );
+        // console.info(
+        //     `Added local event listener to component ${this._name} for "${eventName}"`
+        // );
 
         this._components.addAction(eventName, action);
 
@@ -332,9 +357,9 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
             if (element) {
                 fromEvent(element, eventName).subscribe({
                     next: (event) => {
-                        console.info(
-                            `Received local event "${event.type}" on component "${this._name}" with id "${elementId}"`
-                        );
+                        // console.info(
+                        //     `Received local event "${event.type}" on component "${this._name}" with id "${elementId}"`
+                        // );
                         this._components.fireActionFor(
                             eventName,
                             elementId,
@@ -404,6 +429,10 @@ export class StatefulComponent<
         );
     }
 
+    get sharedStateObject(): State<SharedState> {
+        return this._sharedState;
+    }
+
     public setSharedState(newState: SharedState): void {
         this._sharedState.update(newState);
     }
@@ -423,18 +452,17 @@ export class StatefulComponent<
 }
 
 export class DeepStatefulComponent<
-    LocalState,
     SharedState
-> extends BaseComponent<StatefulComponentTemplate<LocalState>> {
+> extends BaseComponent<StatefulComponentTemplate> {
     constructor(
         name: string,
-        initialLocalState: LocalState,
+        initialLocalState: any,
         initialSharedState: SharedState,
-        prepare?: NodeAction<{ shared: SharedState; local: LocalState }>,
+        prepare?: NodeAction<{ shared: SharedState; local: any }>,
         onError?: Observer<HTMLElement>["error"],
         onLifecycle?: Observer<HTMLElement>["complete"]
     ) {
-        const template = new StatefulComponentTemplate<LocalState>(
+        const template = new StatefulComponentTemplate(
             canonicalize(name),
             initialLocalState,
             prepare,
@@ -463,6 +491,10 @@ export class DeepStatefulComponent<
         );
     }
 
+    get sharedStateObject(): State<SharedState> {
+        return this._sharedState;
+    }
+
     public setSharedState(newState: SharedState): void {
         this._sharedState.update(newState);
     }
@@ -480,17 +512,36 @@ export class DeepStatefulComponent<
         );
     }
 
-    // TODO add better way to handle the local state of each element
-    public onEventLocalStateful(
-        event: string,
-        state: LocalState,
-        action: NodeAction<LocalState>,
+    public addSideEffectStateful<LocalState, SharedState>(
+        effectName: string,
+        action: NodeAction<{ local: LocalState; shared: SharedState }>,
+        stateHolder: State<SharedState>,
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
     ) {
-        console.info(
-            `Added local event listener to component ${this._name} for "${event}"`
-        );
+        // console.info(
+        //     `Added global effect "${effectName}" to component ${this._name}`
+        // );
+
+        this._components.addAction(effectName, action);
+        stateHolder.subscribe({
+            next: (data) => this._components.fireAction(effectName, data),
+            error: onError,
+            complete: onLifecycle,
+        });
+    }
+
+    // TODO add better way to handle the local state of each element
+    public onEventLocalStateful(
+        event: string,
+        state: any,
+        action: NodeAction<any>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ) {
+        // console.info(
+        //     `Added local event listener to component ${this._name} for "${event}"`
+        // );
 
         const statefulAction = (node: HTMLElement): HTMLElement => {
             return action(node, state);
@@ -505,9 +556,9 @@ export class DeepStatefulComponent<
             if (element) {
                 fromEvent(element, event).subscribe({
                     next: (event) => {
-                        console.info(
-                            `Received local event "${event.type}" on component "${this._name}" with id "${elementId}"`
-                        );
+                        // console.info(
+                        //     `Received local event "${event.type}" on component "${this._name}" with id "${elementId}"`
+                        // );
                         this._components.fireAction(`on${event}`, event);
                     },
                     error: onError,
