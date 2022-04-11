@@ -15,7 +15,6 @@ import {
     Subscription,
     Observer,
 } from "rxjs";
-import short from "short-uuid";
 
 export class EditableNode<
     EditableHTMLProp extends HTMLElement[DirectlyEditableHTMLProps]

@@ -5,9 +5,8 @@ import type {
     OnLifecycleHandler,
     Transform,
 } from "./types";
-import { canonicalize } from "./util";
-import { fromEvent, Subscription, Observer, Observable } from "rxjs";
-import short from "short-uuid";
+import { canonicalize, unsafeID } from "./util";
+import { fromEvent, Subscription, Observer } from "rxjs";
 import { Node, StatefulNode, State } from "./base";
 
 abstract class BaseComponentTemplate<NodeType extends Node> {
@@ -121,7 +120,7 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
                 className
             ) as HTMLCollectionOf<HTMLElement>
         ).forEach((element) => {
-            const newId = short.generate();
+            const newId = unsafeID(20);
             const doesExist = () => {
                 const node = document.querySelector(
                     `[data-${canonicalize("id")}="${newId}"]`
@@ -159,7 +158,7 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
                 className
             ) as HTMLCollectionOf<HTMLElement>
         ).forEach((element) => {
-            const newId = short.generate();
+            const newId = unsafeID(20);
             const doesExist = () => {
                 const node = document.querySelector(
                     `[data-${canonicalize("id")}="${newId}"]`
