@@ -4,17 +4,28 @@ import type {
     OnErrorHandler,
     OnLifecycleHandler,
     Transform,
+    ZTComponentErrorEither,
+    IBaseComponentTemplate,
+    ZTStatefulComponentError,
 } from "./types";
-import { canonicalize, unsafeID } from "./util";
+import {
+    canonicalize,
+    unsafeID,
+    elementAccessCheck,
+    buildAccessError,
+} from "./util";
 import { fromEvent, Subscription, Observer } from "rxjs";
 import { Node, StatefulNode, State } from "./base";
 
-abstract class BaseComponentTemplate<NodeType extends Node> {
+abstract class BaseComponentTemplate<NodeType extends Node>
+    implements IBaseComponentTemplate<NodeType>
+{
     constructor(
-        protected className: string,
+        className: string,
         ids: string[],
         _elements: Record<string, NodeType>
     ) {
+        this.name = className;
         this.ids = ids;
         this._elements = _elements;
     }
@@ -23,10 +34,12 @@ abstract class BaseComponentTemplate<NodeType extends Node> {
 
     protected _elements: Record<string, NodeType>;
 
-    public ids: string[];
+    public name;
 
-    public get actionsList() {
-        return this._elements[this.ids[0]].actionsList;
+    public ids;
+
+    public actionsListOf(id: string) {
+        return this._elements[id] ? this._elements[id].actionsList : [];
     }
 
     public addAction(
@@ -47,19 +60,42 @@ abstract class BaseComponentTemplate<NodeType extends Node> {
 
     public removeAction(actionId: string) {
         this.ids.forEach((id) => {
-            this._elements[id].removeAction(actionId);
+            if (
+                elementAccessCheck(
+                    actionId,
+                    "action",
+                    this.name,
+                    this.actionsListOf(id)
+                )
+            ) {
+                this._elements[id].removeAction(actionId);
+            }
         });
     }
 
     public fireAction(actionId: string, payload?: unknown) {
         this.ids.forEach((id) => {
-            this._elements[id].fireAction(actionId, payload);
+            if (
+                elementAccessCheck(
+                    actionId,
+                    "action",
+                    this.name,
+                    this.actionsListOf(id)
+                )
+            ) {
+                this._elements[id].fireAction(actionId, payload);
+            } else {
+                return buildAccessError<NodeType, this>(
+                    this,
+                    "ENOACTION",
+                    "Unable to fire action",
+                    id
+                );
+            }
         });
     }
 
-    public sideEffect(
-        observer: Partial<Observer<HTMLElement>>
-    ): Subscription[] {
+    public sideEffect(observer: Partial<Observer<HTMLElement>>) {
         const subs: Subscription[] = [];
         this.ids.forEach((id) => {
             subs.push(this._elements[id].sideEffect(observer));
@@ -73,34 +109,120 @@ abstract class BaseComponentTemplate<NodeType extends Node> {
         action: NodeAction<any>,
         onError?: OnErrorHandler,
         onLifecycle?: OnLifecycleHandler
-    ) {
-        this._elements[elementId].addAction(
-            actionId,
-            action,
-            onError,
-            onLifecycle
-        );
+    ): void | ZTComponentErrorEither<NodeType, this> {
+        if (elementAccessCheck(elementId, "element", this.name, this.ids)) {
+            if (
+                !elementAccessCheck(
+                    actionId,
+                    "action",
+                    this.name,
+                    this.actionsListOf(elementId)
+                )
+            ) {
+                this._elements[elementId].addAction(
+                    actionId,
+                    action,
+                    onError,
+                    onLifecycle
+                );
+            } else {
+                return buildAccessError<NodeType, this>(
+                    this,
+                    "EEXISTSACTION",
+                    "Unable to add already existing action",
+                    elementId
+                );
+            }
+        } else {
+            return buildAccessError<NodeType, this>(
+                this,
+                "ENOELEMENT",
+                "Unable to add action to nonexistant element",
+                elementId
+            );
+        }
     }
 
-    public removeActionFrom(actionId: string, elementId: string) {
-        this._elements[elementId].removeAction(actionId);
+    public removeActionFrom(
+        actionId: string,
+        elementId: string
+    ): void | ZTComponentErrorEither<NodeType, this> {
+        if (elementAccessCheck(elementId, "element", this.name, this.ids)) {
+            if (
+                elementAccessCheck(
+                    actionId,
+                    "action",
+                    this.name,
+                    this.actionsListOf(elementId)
+                )
+            ) {
+                this._elements[elementId].removeAction(actionId);
+            } else {
+                return buildAccessError<NodeType, this>(
+                    this,
+                    "ENOACTION",
+                    "Unable to remove nonexistant action",
+                    elementId
+                );
+            }
+        } else {
+            return buildAccessError<NodeType, this>(
+                this,
+                "ENOELEMENT",
+                "Unable to remove action from nonexistant element",
+                elementId
+            );
+        }
     }
 
     public fireActionFor(
         actionId: string,
         elementId: string,
         payload?: unknown
-    ) {
-        this._elements[elementId].fireAction(actionId, payload);
+    ): void | ZTComponentErrorEither<NodeType, this> {
+        if (elementAccessCheck(elementId, "element", this.name, this.ids)) {
+            if (
+                elementAccessCheck(
+                    actionId,
+                    "action",
+                    this.name,
+                    this.actionsListOf(elementId)
+                )
+            ) {
+                this._elements[elementId].fireAction(actionId, payload);
+            } else {
+                return buildAccessError<NodeType, this>(
+                    this,
+                    "ENOACTION",
+                    "Unable to fire nonexistant action",
+                    elementId
+                );
+            }
+        } else {
+            return buildAccessError<NodeType, this>(
+                this,
+                "ENOELEMENT",
+                "Unable to fire action from nonexistant element",
+                elementId
+            );
+        }
     }
 
     public sideEffectFor(
         elementId: string,
         observer: Partial<Observer<HTMLElement>>
-    ): Subscription[] {
-        const subs: Subscription[] = [];
-        subs.push(this._elements[elementId].sideEffect(observer));
-        return subs;
+    ): Subscription[] | ZTComponentErrorEither<NodeType, this> {
+        if (elementAccessCheck(elementId, "element", this.name, this.ids)) {
+            const subs: Subscription[] = [];
+            subs.push(this._elements[elementId].sideEffect(observer));
+            return subs;
+        }
+        return buildAccessError<Node, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to attach side effect",
+            elementId
+        );
     }
 }
 
@@ -184,24 +306,74 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         super(className, ids, elements);
     }
 
-    public getLocalState(id: string, stateKey?: string): any {
-        return this._elements[id].getState(stateKey);
+    public getLocalState(
+        id: string,
+        stateKey?: string
+    ): any | ZTComponentErrorEither<StatefulNode, this> {
+        if (elementAccessCheck(id, "element", this.name, this.ids)) {
+            return this._elements[id].getState(stateKey);
+        }
+        return buildAccessError<StatefulNode, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to get state from element",
+            id,
+            undefined,
+            "getState"
+        );
     }
 
-    public getLocalStateObject(id: string, stateKey?: string): State<any> {
-        return this._elements[id].getStateObject(stateKey);
+    public getLocalStateObject(
+        id: string,
+        stateKey?: string
+    ): State<any> | ZTComponentErrorEither<StatefulNode, this> {
+        if (elementAccessCheck(id, "element", this.name, this.ids)) {
+            return this._elements[id].getStateObject(stateKey);
+        }
+        return buildAccessError<StatefulNode, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to get state from element",
+            id,
+            undefined,
+            "getState"
+        );
     }
 
-    public setLocalState(id: string, newState: any, stateKey?: string): void {
-        this._elements[id].setState(newState, stateKey);
+    public setLocalState(
+        id: string,
+        newState: any,
+        stateKey?: string
+    ): void | ZTComponentErrorEither<StatefulNode, this> {
+        if (elementAccessCheck(id, "element", this.name, this.ids)) {
+            this._elements[id].setState(newState, stateKey);
+        }
+        return buildAccessError<StatefulNode, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to set element state",
+            id,
+            undefined,
+            "setState"
+        );
     }
 
     public transformLocalState(
         id: string,
         transform: Transform<any>,
         stateKey?: string
-    ): void {
-        this._elements[id].transformState(transform, stateKey);
+    ): void | ZTComponentErrorEither<StatefulNode, this> {
+        if (elementAccessCheck(id, "element", this.name, this.ids)) {
+            this._elements[id].transformState(transform, stateKey);
+        }
+        return buildAccessError<StatefulNode, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to transform element state",
+            id,
+            undefined,
+            "transformState"
+        );
     }
 
     public sideEffectStateful(
@@ -218,25 +390,39 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
     public sideEffectStatefulFor<LocalState>(
         elementId: string,
         action: NodeAction<LocalState>
-    ): Subscription[] {
+    ): Subscription[] | ZTComponentErrorEither<StatefulNode, this> {
         const subs: Subscription[] = [];
-        // HACK no idea why this is happening but i guess it's because the static analyzer is unable to tell that elementId actually is in _elements
-        // @ts-ignore: Compiler is being stupid and saying the types are unrelated
-        subs.push(this._elements[elementId].sideEffectStateful(action));
-        return subs;
+        if (elementAccessCheck(elementId, "element", this.name, this.ids)) {
+            subs.push(this._elements[elementId].sideEffectStateful(action));
+            return subs;
+        }
+        return buildAccessError<StatefulNode, this>(
+            this,
+            "ENOELEMENT",
+            "Unable to attach side effect to element",
+            elementId,
+            undefined,
+            "sideEffectStatefulFor"
+        );
     }
 }
 
 abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
-    constructor(name: string, components: Template) {
+    constructor(components: Template) {
         // TODO Handle SharedState initialization
-        this._name = name;
         this._components = components;
     }
 
-    protected _name: string;
-
     protected _components: Template;
+
+    get name(): string {
+        return this._components.name;
+    }
+
+    get dangerouslyGetComponentTemplate(): Template {
+        // TODO add way to enable or disable access to this option
+        return this._components;
+    }
 
     // TODO populate the regenerate method on the component definition
     // public regenerate(): void {
@@ -386,7 +572,7 @@ export class Component extends BaseComponent<ComponentTemplate> {
             onError,
             onLifecycle
         );
-        super(canonicalize(name), template);
+        super(template);
     }
 }
 
@@ -406,7 +592,7 @@ export class StatefulComponent<
             onError,
             onLifecycle
         );
-        super(canonicalize(name), template);
+        super(template);
         this._sharedState = new State(initialSharedState);
         this._sharedStateValue = initialSharedState;
         this._sharedState.subscribe({
@@ -468,7 +654,7 @@ export class DeepStatefulComponent<
             onError,
             onLifecycle
         );
-        super(canonicalize(name), template);
+        super(template);
         this._sharedState = new State(initialSharedState);
         this._sharedStateValue = initialSharedState;
         this._sharedState.subscribe({
