@@ -1,5 +1,9 @@
 import type { WritableKeys, OmitProperties } from "ts-essentials";
 
+import type { Node, StatefulNode, State } from "./base";
+
+import { fromEvent, Subscription, Observer } from "rxjs";
+
 export type DirectlyEditableHTMLProps = WritableKeys<
     OmitProperties<HTMLElement, object | Function>
 >;
@@ -48,3 +52,88 @@ export const isStringExtension = <
 ): key is Selector => {
     return (key as Selector) in container ? true : false;
 };
+
+export const ZTComponentErrorDescriptions = {
+    ENOACTION: "Action not found on element",
+    ENOELEMENT: "Element not found in component",
+    ENOCOMPONENT: "Component not found",
+    EEXISTSACTION: "Action already exists on element",
+    EEXISTSELEMENT: "Element already exists in component",
+    EEXISTSCOMPONENT: "Component already exists",
+};
+
+export type ZTComponentErrorTypes = keyof typeof ZTComponentErrorDescriptions;
+
+export interface ZTComponentError<Template> extends Error {
+    component: string;
+    errorType: ZTComponentErrorTypes;
+    errorDescription: typeof ZTComponentErrorDescriptions[ZTComponentError<Template>["errorType"]];
+    ids: string[];
+    template: Template;
+    requestedId?: string;
+    requestedAction?: string;
+    requestedMethod?: string;
+}
+
+export interface ZTStatefulComponentError<Template>
+    extends ZTComponentError<Template> {
+    sharedState?: State<any>;
+    localState?: State<any>;
+}
+
+export type ZTComponentErrorEither<NodeType, Template> =
+    NodeType extends StatefulNode
+        ? ZTStatefulComponentError<Template>
+        : ZTComponentError<Template>;
+
+export interface IBaseComponentTemplate<NodeType extends Node> {
+    name: string;
+
+    ids: string[];
+
+    actionsListOf(id: string): void;
+
+    addAction(
+        actionId: string,
+        action: NodeAction<any>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ): void;
+
+    removeAction(
+        actionId: string
+    ): void | ZTComponentErrorEither<NodeType, this>;
+
+    fireAction(
+        actionId: string,
+        payload?: unknown
+    ): void | ZTComponentErrorEither<NodeType, this>;
+
+    sideEffect(
+        observer: Partial<Observer<HTMLElement>>
+    ): Subscription[] | ZTComponentErrorEither<NodeType, this>;
+
+    addActionFor(
+        actionId: string,
+        elementId: string,
+        action: NodeAction<any>,
+        onError?: OnErrorHandler,
+        onLifecycle?: OnLifecycleHandler
+    ): void | ZTComponentErrorEither<NodeType, this>;
+
+    removeActionFrom(
+        actionId: string,
+        elementId: string
+    ): void | ZTComponentErrorEither<NodeType, this>;
+
+    fireActionFor(
+        actionId: string,
+        elementId: string,
+        payload?: unknown
+    ): void | ZTComponentErrorEither<NodeType, this>;
+
+    sideEffectFor(
+        elementId: string,
+        observer: Partial<Observer<HTMLElement>>
+    ): Subscription[] | ZTComponentErrorEither<NodeType, this>;
+}
