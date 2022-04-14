@@ -102,16 +102,14 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
 
     removeAction(
         actionId: string
-    ): void | ZTComponentErrorEither<NodeType, this>;
+    ): (ZTComponentErrorEither<NodeType, this> | false)[];
 
     fireAction(
         actionId: string,
         payload?: unknown
-    ): void | ZTComponentErrorEither<NodeType, this>;
+    ): (ZTComponentErrorEither<NodeType, this> | false)[];
 
-    sideEffect(
-        observer: Partial<Observer<HTMLElement>>
-    ): Subscription[] | ZTComponentErrorEither<NodeType, this>;
+    sideEffect(observer: Partial<Observer<HTMLElement>>): Subscription[];
 
     addActionFor(
         actionId: string,

@@ -23,9 +23,10 @@ export const elementAccessCheck = (
     containerName: string,
     elements: Record<string, any>
 ): boolean => {
-    if (id in elements) {
+    if (Object.values(elements).indexOf(id) !== -1) {
         return true;
     } else {
+        // TODO add debug level support
         console.error(
             `No ${type} with key ${id} was found in component ${containerName}`
         );

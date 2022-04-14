@@ -58,41 +58,59 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         });
     }
 
-    public removeAction(actionId: string) {
-        this.ids.forEach((id) => {
-            if (
-                elementAccessCheck(
-                    actionId,
-                    "action",
-                    this.name,
-                    this.actionsListOf(id)
-                )
-            ) {
-                this._elements[id].removeAction(actionId);
-            }
-        });
+    public removeAction(
+        actionId: string
+    ): (ZTComponentErrorEither<NodeType, this> | false)[] {
+        return this.ids
+            .map((id) => {
+                if (
+                    elementAccessCheck(
+                        actionId,
+                        "action",
+                        this.name,
+                        this.actionsListOf(id)
+                    )
+                ) {
+                    this._elements[id].removeAction(actionId);
+                    return false;
+                } else {
+                    return buildAccessError<NodeType, this>(
+                        this,
+                        "ENOACTION",
+                        "Unable to remove nonexistant action",
+                        id
+                    );
+                }
+            })
+            .filter((error) => (error ? true : false));
     }
 
-    public fireAction(actionId: string, payload?: unknown) {
-        this.ids.forEach((id) => {
-            if (
-                elementAccessCheck(
-                    actionId,
-                    "action",
-                    this.name,
-                    this.actionsListOf(id)
-                )
-            ) {
-                this._elements[id].fireAction(actionId, payload);
-            } else {
-                return buildAccessError<NodeType, this>(
-                    this,
-                    "ENOACTION",
-                    "Unable to fire action",
-                    id
-                );
-            }
-        });
+    public fireAction(
+        actionId: string,
+        payload?: unknown
+    ): (ZTComponentErrorEither<NodeType, this> | false)[] {
+        return this.ids
+            .map((id) => {
+                if (
+                    elementAccessCheck(
+                        actionId,
+                        "action",
+                        this.name,
+                        this.actionsListOf(id)
+                    )
+                ) {
+                    this._elements[id].fireAction(actionId, payload);
+                    return false;
+                } else {
+                    return buildAccessError<NodeType, this>(
+                        this,
+                        "ENOACTION",
+                        "Unable to fire action",
+                        id
+                    );
+                }
+            })
+            .filter((error) => (error ? true : false));
     }
 
     public sideEffect(observer: Partial<Observer<HTMLElement>>) {
@@ -340,22 +358,8 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         );
     }
 
-    public setLocalState(
-        id: string,
-        newState: any,
-        stateKey?: string
-    ): void | ZTComponentErrorEither<StatefulNode, this> {
-        if (elementAccessCheck(id, "element", this.name, this.ids)) {
-            this._elements[id].setState(newState, stateKey);
-        }
-        return buildAccessError<StatefulNode, this>(
-            this,
-            "ENOELEMENT",
-            "Unable to set element state",
-            id,
-            undefined,
-            "setState"
-        );
+    public setLocalState(id: string, newState: any, stateKey?: string): void {
+        this._elements[id].setState(newState, stateKey);
     }
 
     public transformLocalState(
@@ -415,11 +419,11 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
 
     protected _components: Template;
 
-    get name(): string {
+    public get name(): string {
         return this._components.name;
     }
 
-    get dangerouslyGetComponentTemplate(): Template {
+    public get dangerouslyGetComponentTemplate(): Template {
         // TODO add way to enable or disable access to this option
         return this._components;
     }
