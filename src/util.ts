@@ -1,6 +1,25 @@
+import {
+    ZTComponentError,
+    ZTComponentErrorDescriptions,
+    ZTStatefulComponentError,
+    ZTComponentErrorTypes,
+    ZTComponentErrorEither,
+    IBaseComponentTemplate,
+} from "./types";
+
+import type { Node, StatefulNode } from "./base";
+
+import type {
+    Component,
+    StatefulComponent,
+    DeepStatefulComponent,
+} from "./component";
+
 export const canonicalize = (name: string) => `zt-${name}`;
-export const elementAccessErrorHandler = (
+
+export const elementAccessCheck = (
     id: string,
+    type: string,
     containerName: string,
     elements: Record<string, any>
 ): boolean => {
@@ -8,11 +27,42 @@ export const elementAccessErrorHandler = (
         return true;
     } else {
         console.error(
-            `No element with key ${id} was found in component ${containerName}`
+            `No ${type} with key ${id} was found in component ${containerName}`
         );
         return false;
     }
 };
+
+export const buildAccessError = <
+    NodeType extends Node,
+    Template extends IBaseComponentTemplate<NodeType>
+>(
+    template: Template,
+    type: ZTComponentErrorTypes,
+    message: string,
+    requestedId?: string,
+    requestedAction?: string,
+    requestedMethod?: string
+): ZTComponentErrorEither<NodeType, Template> => {
+    return {
+        message,
+        requestedAction,
+        requestedId,
+        requestedMethod,
+        template,
+        name: "ZTComponentError",
+        component: template.name,
+        errorType: type,
+        errorDescription: ZTComponentErrorDescriptions[type],
+        ids: template.ids,
+    };
+};
+
+// export const buildStatefulError = <SharedState>(
+//     component:
+//         | StatefulComponent<SharedState>
+//         | DeepStatefulComponent<SharedState>
+// ): ZTStatefulComponentError => {};
 
 const idDictionary = [
     "a",
