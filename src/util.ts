@@ -75,10 +75,8 @@ export const unsafeID = (length: number): string => {
     let counter = 0;
     let container = "";
     while (length > counter) {
-        container = `${container}${
-            idDictionary[Math.floor(Math.random() * 53)]
-        }`;
-        counter += 1;
+        container += idDictionary[Math.floor(Math.random() * 53)];
+        counter++;
     }
     return container;
 };
