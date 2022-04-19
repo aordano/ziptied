@@ -43,23 +43,11 @@ const arbitraryTransform = <T>(value: T, transform: (value: T) => T): T => {
  * @date 4/19/2022 - 12:18:05 PM
  * @author Ágata Ordano
  *
- * @template T
- * @param {T} value
- * @returns {T}
- */
-const identity = <T>(value: T): T => value;
-
-/**
- * TODO  -- Description placeholder
- * @date 4/19/2022 - 12:18:05 PM
- * @author Ágata Ordano
- *
  * @type {{ arbitrarySet: <T>(value: T) => T; arbitraryTransform: <T>(value: T, transform: (value: T) => T) => T; identity: <T>(value: T) => T; }}
  */
 export const Primitives = {
     arbitrarySet,
     arbitraryTransform,
-    identity,
 };
 
 /**
