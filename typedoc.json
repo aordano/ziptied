@@ -1,0 +1,21 @@
+{
+    "$schema": "https://typedoc.org/schema.json",
+    "entryPoints": ["./src/index.ts"],
+    "out": "docs/gen",
+    "exclude": ["**/*+(.spec|.e2e).ts"],
+    "media": "docs/assets/media",
+    "includes": "docs/assets/includes",
+    "json": "docs/reflection.json",
+    "pretty": true,
+    "emit": "true",
+    "name": "Ziptied JS",
+    "includeVersion": true,
+    "readme": "docs/readme.md",
+    "markedOptions": {
+        "gfm": true,
+        "mangle": false,
+        "smartLists": true,
+        "smartypants": true
+    },
+    "excludeExternals": true
+}

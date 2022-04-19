@@ -1,3 +1,6 @@
 coverage/
 CODEOWNERS
 commitlint.config.js
+*.spec.js
+*.spec.ts
+gulpfile.js

@@ -4,8 +4,10 @@
     "description": "Easy reactive framework to ziptie on top of static sites for reactivity and modern features.",
     "main": "dist/index.js",
     "scripts": {
-        "test": "ava",
-        "build": "tsc"
+        "test": "tsc && c8 ava",
+        "build": "typedoc && c8 ava",
+        "dev": "tsc --watch",
+        "dev:test": "gulp"
     },
     "repository": {
         "type": "git",
@@ -22,13 +24,21 @@
     },
     "homepage": "https://github.com/nodoambiental/ziptied#readme",
     "devDependencies": {
+        "@ava/typescript": "^3.0.1",
         "@commitlint/cli": "^16.0.1",
         "@commitlint/config-conventional": "^16.0.0",
         "@commitlint/cz-commitlint": "^16.0.0",
-        "ava": "^3.15.0",
+        "ava": "^4.2.0",
+        "c8": "^7.11.0",
         "commitizen": "^4.2.4",
+        "gulp": "^4.0.2",
         "husky": "^7.0.4",
         "ts-essentials": "^9.1.2",
+        "typedoc": "^0.22.15",
+        "typedoc-plugin-coverage": "^1.0.2",
+        "typedoc-plugin-mdn-links": "^1.0.6",
+        "typedoc-plugin-mermaid": "^1.8.0",
+        "typedoc-plugin-missing-exports": "^0.22.6",
         "typescript": "^4.5.4"
     },
     "config": {
@@ -38,5 +48,16 @@
     },
     "dependencies": {
         "rxjs": "^7.5.5"
+    },
+    "ava": {
+        "typescript": {
+            "rewritePaths": {
+                "src/": "dist/"
+            },
+            "compile": false
+        },
+        "files": [
+            "src/**/*.spec.ts"
+        ]
     }
 }
