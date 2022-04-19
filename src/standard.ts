@@ -1,13 +1,48 @@
+/**
+ * TODO
+ *
+ *
+ *
+ *
+ *
+ *
+ * @module
+ */
+
 import { DeepStatefulComponent, Component } from "./component";
 import type { OnErrorHandler, TextReplacerState } from "./types";
 import { isStringExtension } from "./types";
 import { canonicalize } from "./util";
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:08 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @class TextReplacerTarget
+ * @typedef {TextReplacerTarget}
+ * @template Selector extends string
+ * @template Corpus extends Record<Selector, Record<string, string>>
+ * @template State extends TextReplacerState<Selector, Corpus>
+ * @extends {DeepStatefulComponent<TextReplacerState<Selector, Corpus>>}
+ */
 export class TextReplacerTarget<
     Selector extends string,
     Corpus extends Record<Selector, Record<string, string>>,
     State extends TextReplacerState<Selector, Corpus>
 > extends DeepStatefulComponent<TextReplacerState<Selector, Corpus>> {
+    /**
+     * Creates an instance of TextReplacerTarget.
+     * @date 4/19/2022 - 12:17:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} name
+     * @param {State} textCorpus
+     * @param {?string} [triggerLog]
+     * @param {?OnErrorHandler} [onError]
+     */
     constructor(
         name: string,
         textCorpus: State,
@@ -65,11 +100,37 @@ export class TextReplacerTarget<
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:08 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @class TextReplacerSelector
+ * @typedef {TextReplacerSelector}
+ * @template Selector extends string
+ * @template Corpus extends Record<Selector, Record<string, string>>
+ * @template Dictionary extends TextReplacerState<Selector, Corpus>
+ * @extends {Component}
+ */
 export class TextReplacerSelector<
     Selector extends string,
     Corpus extends Record<Selector, Record<string, string>>,
     Dictionary extends TextReplacerState<Selector, Corpus>
 > extends Component {
+    /**
+     * Creates an instance of TextReplacerSelector.
+     * @date 4/19/2022 - 12:17:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} name
+     * @param {string} dataTag
+     * @param {string} triggerEvent
+     * @param {DeepStatefulComponent<Dictionary>} target
+     * @param {?string} [triggerLog]
+     * @param {?OnErrorHandler} [onError]
+     */
     constructor(
         name: string,
         dataTag: string,

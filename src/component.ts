@@ -1,3 +1,14 @@
+/**
+ * TODO
+ *
+ *
+ *
+ *
+ *
+ *
+ * @module
+ */
+
 import type {
     NodeAction,
     NodeActionRequired,
@@ -6,7 +17,6 @@ import type {
     Transform,
     ZTComponentErrorEither,
     IBaseComponentTemplate,
-    ZTStatefulComponentError,
 } from "./types";
 import {
     canonicalize,
@@ -17,9 +27,30 @@ import {
 import { fromEvent, Subscription, Observer } from "rxjs";
 import { Node, StatefulNode, State } from "./base";
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @abstract
+ * @class BaseComponentTemplate
+ * @typedef {BaseComponentTemplate}
+ * @template NodeType extends Node
+ * @implements {IBaseComponentTemplate<NodeType>}
+ */
 abstract class BaseComponentTemplate<NodeType extends Node>
     implements IBaseComponentTemplate<NodeType>
 {
+    /**
+     * Creates an instance of BaseComponentTemplate.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} className
+     * @param {string[]} ids
+     * @param {Record<string, NodeType>} _elements
+     */
     constructor(
         className: string,
         ids: string[],
@@ -32,16 +63,60 @@ abstract class BaseComponentTemplate<NodeType extends Node>
 
     // TODO Add method to check if there are new elements with the class name and regenerate them
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {Record<string, NodeType>}
+     */
     protected _elements: Record<string, NodeType>;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @type {*}
+     */
     public name;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @type {*}
+     */
     public ids;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} id
+     * @returns {*}
+     */
     public actionsListOf(id: string) {
         return this._elements[id] ? this._elements[id].actionsList : [];
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public addAction(
         actionId: string,
         action: NodeAction<any>,
@@ -58,6 +133,15 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @returns {((ZTComponentErrorEither<NodeType, this> | false)[])}
+     */
     public removeAction(
         actionId: string
     ): (ZTComponentErrorEither<NodeType, this> | false)[] {
@@ -85,6 +169,16 @@ abstract class BaseComponentTemplate<NodeType extends Node>
             .filter((error) => (error ? true : false));
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @param {?unknown} [payload]
+     * @returns {((ZTComponentErrorEither<NodeType, this> | false)[])}
+     */
     public fireAction(
         actionId: string,
         payload?: unknown
@@ -113,6 +207,15 @@ abstract class BaseComponentTemplate<NodeType extends Node>
             .filter((error) => (error ? true : false));
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {Partial<Observer<HTMLElement>>} observer
+     * @returns {{}}
+     */
     public sideEffect(observer: Partial<Observer<HTMLElement>>) {
         const subs: Subscription[] = [];
         this.ids.forEach((id) => {
@@ -121,6 +224,19 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         return subs;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @param {string} elementId
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     * @returns {(void | ZTComponentErrorEither<NodeType, this>)}
+     */
     public addActionFor(
         actionId: string,
         elementId: string,
@@ -161,6 +277,16 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         }
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @param {string} elementId
+     * @returns {(void | ZTComponentErrorEither<NodeType, this>)}
+     */
     public removeActionFrom(
         actionId: string,
         elementId: string
@@ -193,6 +319,17 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         }
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} actionId
+     * @param {string} elementId
+     * @param {?unknown} [payload]
+     * @returns {(void | ZTComponentErrorEither<NodeType, this>)}
+     */
     public fireActionFor(
         actionId: string,
         elementId: string,
@@ -226,6 +363,16 @@ abstract class BaseComponentTemplate<NodeType extends Node>
         }
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} elementId
+     * @param {Partial<Observer<HTMLElement>>} observer
+     * @returns {(Subscription[] | ZTComponentErrorEither<NodeType, this>)}
+     */
     public sideEffectFor(
         elementId: string,
         observer: Partial<Observer<HTMLElement>>
@@ -244,7 +391,27 @@ abstract class BaseComponentTemplate<NodeType extends Node>
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @class ComponentTemplate
+ * @typedef {ComponentTemplate}
+ * @extends {BaseComponentTemplate<Node>}
+ */
 class ComponentTemplate extends BaseComponentTemplate<Node> {
+    /**
+     * Creates an instance of ComponentTemplate.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} className
+     * @param {?NodeAction<any>} [prepare]
+     * @param {?Observer<HTMLElement>["error"]} [onError]
+     * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
+     */
     constructor(
         protected className: string,
         prepare?: NodeAction<any>,
@@ -281,7 +448,28 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @class StatefulComponentTemplate
+ * @typedef {StatefulComponentTemplate}
+ * @extends {BaseComponentTemplate<StatefulNode>}
+ */
 class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
+    /**
+     * Creates an instance of StatefulComponentTemplate.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} className
+     * @param {*} initialState
+     * @param {?NodeAction<any>} [prepare]
+     * @param {?Observer<HTMLElement>["error"]} [onError]
+     * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
+     */
     constructor(
         protected className: string,
         initialState: any,
@@ -324,6 +512,16 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         super(className, ids, elements);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} id
+     * @param {?string} [stateKey]
+     * @returns {(any | ZTComponentErrorEither<StatefulNode, this>)}
+     */
     public getLocalState(
         id: string,
         stateKey?: string
@@ -341,6 +539,16 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} id
+     * @param {?string} [stateKey]
+     * @returns {(State<any> | ZTComponentErrorEither<StatefulNode, this>)}
+     */
     public getLocalStateObject(
         id: string,
         stateKey?: string
@@ -358,10 +566,31 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} id
+     * @param {*} newState
+     * @param {?string} [stateKey]
+     */
     public setLocalState(id: string, newState: any, stateKey?: string): void {
         this._elements[id].setState(newState, stateKey);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} id
+     * @param {Transform<any>} transform
+     * @param {?string} [stateKey]
+     * @returns {(void | ZTComponentErrorEither<StatefulNode, this>)}
+     */
     public transformLocalState(
         id: string,
         transform: Transform<any>,
@@ -380,6 +609,16 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {NodeAction<any>} action
+     * @param {string} stateKey
+     * @returns {Subscription[]}
+     */
     public sideEffectStateful(
         action: NodeAction<any>,
         stateKey: string
@@ -391,6 +630,17 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         return subs;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template LocalState
+     * @param {string} elementId
+     * @param {NodeAction<LocalState>} action
+     * @returns {(Subscription[] | ZTComponentErrorEither<StatefulNode, this>)}
+     */
     public sideEffectStatefulFor<LocalState>(
         elementId: string,
         action: NodeAction<LocalState>
@@ -411,18 +661,62 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @abstract
+ * @class BaseComponent
+ * @typedef {BaseComponent}
+ * @template Template extends BaseComponentTemplate<Node>
+ */
 abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
+    /**
+     * Creates an instance of BaseComponent.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {Template} components
+     */
     constructor(components: Template) {
         // TODO Handle SharedState initialization
         this._components = components;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {Template}
+     */
     protected _components: Template;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @readonly
+     * @type {string}
+     */
     public get name(): string {
         return this._components.name;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @readonly
+     * @type {Template}
+     */
     public get dangerouslyGetComponentTemplate(): Template {
         // TODO add way to enable or disable access to this option
         return this._components;
@@ -438,6 +732,16 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
     // }
 
     // ? maybe custom implementation? it's pointless now so far
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public onLoad(
         action: NodeAction<any>,
         onError?: OnErrorHandler,
@@ -453,14 +757,41 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template Data
+     * @param {string} name
+     * @param {NodeAction<Data>} action
+     */
     public addAction<Data>(name: string, action: NodeAction<Data>) {
         this._components.addAction(name, action);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} name
+     */
     public fireAction(name: string) {
         this._components.fireAction(name);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template Data
+     * @param {NodeAction<Data>} action
+     */
     public instantAction<Data>(action: NodeAction<Data>) {
         this._components.addAction(
             `RESERVED_${canonicalize("anonymous")}`,
@@ -469,6 +800,16 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         this._components.fireAction(`RESERVED_${canonicalize("anonymous")}`);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public onUpdate(
         action: NodeAction<any>,
         onError?: OnErrorHandler,
@@ -484,6 +825,19 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template Data
+     * @param {string} effectName
+     * @param {NodeAction<Data>} action
+     * @param {State<Data>} stateHolder
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public addSideEffect<Data>(
         effectName: string,
         action: NodeAction<Data>,
@@ -504,6 +858,17 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
     }
 
     // FIXME for some reason the event stuff is not working
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} event
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public onEvent(
         event: string,
         action: NodeAction<any>,
@@ -527,6 +892,18 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template LocalEvent extends Event
+     * @param {string} eventName
+     * @param {NodeAction<LocalEvent>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public onEventLocal<LocalEvent extends Event>(
         eventName: string,
         action: NodeAction<LocalEvent>,
@@ -563,7 +940,28 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @class Component
+ * @typedef {Component}
+ * @extends {BaseComponent<ComponentTemplate>}
+ */
 export class Component extends BaseComponent<ComponentTemplate> {
+    /**
+     * Creates an instance of Component.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} name
+     * @param {?NodeAction<any>} [prepare]
+     * @param {?Observer<HTMLElement>["error"]} [onError]
+     * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
+     */
     constructor(
         name: string,
         prepare?: NodeAction<any>,
@@ -580,9 +978,32 @@ export class Component extends BaseComponent<ComponentTemplate> {
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @class StatefulComponent
+ * @typedef {StatefulComponent}
+ * @template SharedState
+ * @extends {BaseComponent<ComponentTemplate>}
+ */
 export class StatefulComponent<
     SharedState
 > extends BaseComponent<ComponentTemplate> {
+    /**
+     * Creates an instance of StatefulComponent.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} name
+     * @param {SharedState} initialSharedState
+     * @param {?NodeAction<SharedState>} [prepare]
+     * @param {?Observer<HTMLElement>["error"]} [onError]
+     * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
+     */
     constructor(
         name: string,
         initialSharedState: SharedState,
@@ -604,32 +1025,96 @@ export class StatefulComponent<
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {State<SharedState>}
+     */
     protected _sharedState: State<SharedState>;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {SharedState}
+     */
     protected _sharedStateValue: SharedState;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @type {SharedState}
+     */
     get sharedState(): SharedState {
         return this._sharedStateValue;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @type {SharedState}
+     */
     set sharedState(data) {
         throw new Error(
             "Shared state is readonly. Use the methods to modify it."
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @readonly
+     * @type {State<SharedState>}
+     */
     get sharedStateObject(): State<SharedState> {
         return this._sharedState;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {SharedState} newState
+     */
     public setSharedState(newState: SharedState): void {
         this._sharedState.update(newState);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {Transform<SharedState>} transform
+     */
     public transformSharedState(transform: Transform<SharedState>): void {
         this._sharedState.update(transform(this._sharedStateValue));
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template SharedState
+     * @param {string} name
+     * @param {NodeActionRequired<SharedState>} action
+     */
     public addStatefulAction<SharedState>(
         name: string,
         action: NodeActionRequired<SharedState>
@@ -640,9 +1125,33 @@ export class StatefulComponent<
     }
 }
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:14:08 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @class DeepStatefulComponent
+ * @typedef {DeepStatefulComponent}
+ * @template SharedState
+ * @extends {BaseComponent<StatefulComponentTemplate>}
+ */
 export class DeepStatefulComponent<
     SharedState
 > extends BaseComponent<StatefulComponentTemplate> {
+    /**
+     * Creates an instance of DeepStatefulComponent.
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @constructor
+     * @param {string} name
+     * @param {*} initialLocalState
+     * @param {SharedState} initialSharedState
+     * @param {?NodeAction<{ shared: SharedState; local: any }>} [prepare]
+     * @param {?Observer<HTMLElement>["error"]} [onError]
+     * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
+     */
     constructor(
         name: string,
         initialLocalState: any,
@@ -666,32 +1175,96 @@ export class DeepStatefulComponent<
         });
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {State<SharedState>}
+     */
     protected _sharedState: State<SharedState>;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @protected
+     * @type {SharedState}
+     */
     protected _sharedStateValue: SharedState;
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @type {SharedState}
+     */
     get sharedState(): SharedState {
         return this._sharedStateValue;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @type {SharedState}
+     */
     set sharedState(data) {
         throw new Error(
             "Shared state is readonly. Use the methods to modify it."
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @readonly
+     * @type {State<SharedState>}
+     */
     get sharedStateObject(): State<SharedState> {
         return this._sharedState;
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {SharedState} newState
+     */
     public setSharedState(newState: SharedState): void {
         this._sharedState.update(newState);
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {Transform<SharedState>} transform
+     */
     public transformSharedState(transform: Transform<SharedState>): void {
         this._sharedState.update(transform(this._sharedStateValue));
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template SharedState
+     * @param {string} name
+     * @param {NodeActionRequired<SharedState>} action
+     */
     public addStatefulAction<SharedState>(
         name: string,
         action: NodeActionRequired<SharedState>
@@ -701,6 +1274,20 @@ export class DeepStatefulComponent<
         );
     }
 
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @template LocalState
+     * @template SharedState
+     * @param {string} effectName
+     * @param {NodeAction<{ local: LocalState; shared: SharedState }>} action
+     * @param {State<SharedState>} stateHolder
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public addSideEffectStateful<LocalState, SharedState>(
         effectName: string,
         action: NodeAction<{ local: LocalState; shared: SharedState }>,
@@ -721,6 +1308,18 @@ export class DeepStatefulComponent<
     }
 
     // TODO add better way to handle the local state of each element
+    /**
+     * TODO  -- Description placeholder
+     * @date 4/19/2022 - 12:14:08 PM
+     * @author Ágata Ordano
+     *
+     * @public
+     * @param {string} event
+     * @param {*} state
+     * @param {NodeAction<any>} action
+     * @param {?OnErrorHandler} [onError]
+     * @param {?OnLifecycleHandler} [onLifecycle]
+     */
     public onEventLocalStateful(
         event: string,
         state: any,

@@ -1,22 +1,44 @@
+/**
+ * TODO
+ *
+ *
+ *
+ *
+ *
+ *
+ * @module
+ */
+
 import {
-    ZTComponentError,
     ZTComponentErrorDescriptions,
-    ZTStatefulComponentError,
     ZTComponentErrorTypes,
     ZTComponentErrorEither,
     IBaseComponentTemplate,
 } from "./types";
 
-import type { Node, StatefulNode } from "./base";
+import type { Node } from "./base";
 
-import type {
-    Component,
-    StatefulComponent,
-    DeepStatefulComponent,
-} from "./component";
-
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ * @author Ágata Ordano
+ *
+ * @param {string} name
+ * @returns {string}
+ */
 export const canonicalize = (name: string) => `zt-${name}`;
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ * @author Ágata Ordano
+ *
+ * @param {string} id
+ * @param {string} type
+ * @param {string} containerName
+ * @param {Record<string, any>} elements
+ * @returns {boolean}
+ */
 export const elementAccessCheck = (
     id: string,
     type: string,
@@ -34,6 +56,21 @@ export const elementAccessCheck = (
     }
 };
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ * @author Ágata Ordano
+ *
+ * @template NodeType extends Node
+ * @template Template extends IBaseComponentTemplate<NodeType>
+ * @param {Template} template
+ * @param {ZTComponentErrorTypes} type
+ * @param {string} message
+ * @param {?string} [requestedId]
+ * @param {?string} [requestedAction]
+ * @param {?string} [requestedMethod]
+ * @returns {ZTComponentErrorEither<NodeType, Template>}
+ */
 export const buildAccessError = <
     NodeType extends Node,
     Template extends IBaseComponentTemplate<NodeType>
@@ -65,6 +102,13 @@ export const buildAccessError = <
 //         | DeepStatefulComponent<SharedState>
 // ): ZTStatefulComponentError => {};
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ * @author Ágata Ordano
+ *
+ * @type {{}}
+ */
 const idDictionary = [
     "a",
     "b",
@@ -122,6 +166,14 @@ const idDictionary = [
     "0",
 ];
 
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ * @author Ágata Ordano
+ *
+ * @param {number} length
+ * @returns {string}
+ */
 export const unsafeID = (length: number): string => {
     let counter = 0;
     let container = "";
