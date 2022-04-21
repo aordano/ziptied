@@ -4,3 +4,5 @@ commitlint.config.js
 *.spec.js
 *.spec.ts
 gulpfile.js
+umd-dist/
+docs/
