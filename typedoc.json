@@ -17,5 +17,7 @@
         "smartLists": true,
         "smartypants": true
     },
-    "excludeExternals": true
+    "excludeExternals": true,
+    "excludeTags": ["readonly", "export", "author", "date"],
+    "categorizeByGroup": false
 }
