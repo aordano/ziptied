@@ -6,3 +6,13 @@ commitlint.config.js
 gulpfile.js
 umd-dist/
 docs/
+gulpfile.js
+tsconfig.json
+tsconfig.umd.json
+typedoc.json
+webpack.config.js
+.eslintrc.js
+.eslintignore
+.prettierignore
+.prettierrc
+
