@@ -15,4 +15,5 @@ webpack.config.js
 .eslintignore
 .prettierignore
 .prettierrc
+.git-blame-ignore-revs
 
