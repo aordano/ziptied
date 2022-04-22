@@ -2,7 +2,7 @@ docs/
 umd/
 umd-dist/
 dist/
-eslintrc.js
+.eslintrc.js
 .npmignore
 commitlint.config.js
 gulpfile.js
