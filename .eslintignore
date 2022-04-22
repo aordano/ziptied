@@ -1,0 +1,16 @@
+docs/
+umd/
+umd-dist/
+dist/
+eslintrc.js
+.npmignore
+commitlint.config.js
+gulpfile.js
+LICENSE
+package-lock.json
+package.json
+README.md
+tsconfig.json
+tsconfig.umd.json
+typedoc.json
+webpack.config.js

@@ -1,0 +1,16 @@
+coverage/
+dist/
+docs/
+umd/
+umd-dist/
+*.md
+.eslintrc.js
+commitlint.config.js
+gulpfile.js
+package.json
+package-lock.json
+tsconfig.json
+tsconfig.umd.json
+typedoc.json
+webpack.config.js
+
