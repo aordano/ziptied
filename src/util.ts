@@ -7,16 +7,17 @@
  *
  *
  * @module
+ * @category Utilities
  */
 
 import {
-    ZTComponentErrorDescriptions,
-    ZTComponentErrorTypes,
-    ZTComponentErrorEither,
-    IBaseComponentTemplate,
-} from "./types";
+  IBaseComponentTemplate,
+  ZTComponentErrorDescriptions,
+  ZTComponentErrorEither,
+  ZTComponentErrorTypes
+} from "./types"
 
-import type { Node } from "./base";
+import type { Node } from "./base"
 
 /**
  * TODO  -- Description placeholder
@@ -26,7 +27,7 @@ import type { Node } from "./base";
  * @param {string} name
  * @returns {string}
  */
-export const canonicalize = (name: string) => `zt-${name}`;
+export const canonicalize = (name: string) => `zt-${name}`
 
 /**
  * TODO  -- Description placeholder
@@ -40,21 +41,20 @@ export const canonicalize = (name: string) => `zt-${name}`;
  * @returns {boolean}
  */
 export const elementAccessCheck = (
-    id: string,
-    type: string,
-    containerName: string,
-    elements: Record<string, any>
+  id: string,
+  type: string,
+  containerName: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  elements: Record<string, any>
 ): boolean => {
-    if (Object.values(elements).indexOf(id) !== -1) {
-        return true;
-    } else {
-        // TODO add debug level support
-        console.error(
-            `No ${type} with key ${id} was found in component ${containerName}`
-        );
-        return false;
-    }
-};
+  if (Object.values(elements).indexOf(id) !== -1) {
+    return true
+  } else {
+    // TODO add debug level support
+    console.error(`No ${type} with key ${id} was found in component ${containerName}`)
+    return false
+  }
+}
 
 /**
  * TODO  -- Description placeholder
@@ -72,29 +72,29 @@ export const elementAccessCheck = (
  * @returns {ZTComponentErrorEither<NodeType, Template>}
  */
 export const buildAccessError = <
-    NodeType extends Node,
-    Template extends IBaseComponentTemplate<NodeType>
+  NodeType extends Node,
+  Template extends IBaseComponentTemplate<NodeType>
 >(
-    template: Template,
-    type: ZTComponentErrorTypes,
-    message: string,
-    requestedId?: string,
-    requestedAction?: string,
-    requestedMethod?: string
+  template: Template,
+  type: ZTComponentErrorTypes,
+  message: string,
+  requestedId?: string,
+  requestedAction?: string,
+  requestedMethod?: string
 ): ZTComponentErrorEither<NodeType, Template> => {
-    return {
-        message,
-        requestedAction,
-        requestedId,
-        requestedMethod,
-        template,
-        name: "ZTComponentError",
-        component: template.name,
-        errorType: type,
-        errorDescription: ZTComponentErrorDescriptions[type],
-        ids: template.ids,
-    };
-};
+  return {
+    message,
+    requestedAction,
+    requestedId,
+    requestedMethod,
+    template,
+    name: "ZTComponentError",
+    component: template.name,
+    errorType: type,
+    errorDescription: ZTComponentErrorDescriptions[type],
+    ids: template.ids
+  }
+}
 
 // export const buildStatefulError = <SharedState>(
 //     component:
@@ -110,61 +110,61 @@ export const buildAccessError = <
  * @type {{}}
  */
 const idDictionary = [
-    "a",
-    "b",
-    "c",
-    "d",
-    "e",
-    "f",
-    "g",
-    "h",
-    "i",
-    "j",
-    "k",
-    "m",
-    "n",
-    "o",
-    "p",
-    "q",
-    "r",
-    "s",
-    "t",
-    "u",
-    "w",
-    "x",
-    "y",
-    "z",
-    "A",
-    "B",
-    "C",
-    "D",
-    "E",
-    "F",
-    "G",
-    "H",
-    "J",
-    "K",
-    "L",
-    "M",
-    "N",
-    "P",
-    "Q",
-    "R",
-    "S",
-    "T",
-    "V",
-    "X",
-    "Y",
-    "Z",
-    "1",
-    "2",
-    "3",
-    "4",
-    "7",
-    "8",
-    "9",
-    "0",
-];
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "w",
+  "x",
+  "y",
+  "z",
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "V",
+  "X",
+  "Y",
+  "Z",
+  "1",
+  "2",
+  "3",
+  "4",
+  "7",
+  "8",
+  "9",
+  "0"
+]
 
 /**
  * TODO  -- Description placeholder
@@ -175,11 +175,11 @@ const idDictionary = [
  * @returns {string}
  */
 export const unsafeID = (length: number): string => {
-    let counter = 0;
-    let container = "";
-    while (length > counter) {
-        container += idDictionary[Math.floor(Math.random() * 53)];
-        counter++;
-    }
-    return container;
-};
+  let counter = 0
+  let container = ""
+  while (length > counter) {
+    container += idDictionary[Math.floor(Math.random() * 53)]
+    counter++
+  }
+  return container
+}

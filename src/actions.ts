@@ -9,7 +9,7 @@
  * @module
  */
 
-import { NodeAction } from "./types";
+import { NodeAction } from "./types"
 
 /**
  * TODO  -- Description placeholder
@@ -21,8 +21,8 @@ import { NodeAction } from "./types";
  * @returns {T}
  */
 const arbitrarySet = <T>(value: T): T => {
-    return value;
-};
+  return value
+}
 
 /**
  * TODO  -- Description placeholder
@@ -35,8 +35,8 @@ const arbitrarySet = <T>(value: T): T => {
  * @returns {T}
  */
 const arbitraryTransform = <T>(value: T, transform: (value: T) => T): T => {
-    return transform(value);
-};
+  return transform(value)
+}
 
 /**
  * TODO  -- Description placeholder
@@ -46,9 +46,9 @@ const arbitraryTransform = <T>(value: T, transform: (value: T) => T): T => {
  * @type {{ arbitrarySet: <T>(value: T) => T; arbitraryTransform: <T>(value: T, transform: (value: T) => T) => T; identity: <T>(value: T) => T; }}
  */
 export const Primitives = {
-    arbitrarySet,
-    arbitraryTransform,
-};
+  arbitrarySet,
+  arbitraryTransform
+}
 
 /**
  * TODO  -- Description placeholder
@@ -58,37 +58,37 @@ export const Primitives = {
  * @type {Record<string, NodeAction<any>>}
  */
 export const Nodes: Record<string, NodeAction<any>> = {
-    innerHTML: (node: HTMLElement, payload: string) => {
-        node.innerHTML = payload;
-        return node;
-    },
-    opacity: (node: HTMLElement, payload: number) => {
-        node.style.opacity = payload.toString();
-        return node;
-    },
-    transform: (node: HTMLElement, payload: string) => {
-        node.style.transform = payload;
-        return node;
-    },
-    appendChild: (node: HTMLElement, ...[payload]: HTMLElement[]) => {
-        node.append(payload);
-        return node;
-    },
-    appendSibling: (
-        node: HTMLElement,
-        payload: {
-            element: HTMLElement;
-            placement: "beforebegin" | "afterbegin" | "beforeend" | "afterend";
-        }
-    ) => {
-        node.insertAdjacentElement(payload.placement, payload.element);
-        return node;
-    },
-    replace: (node: HTMLElement, payload: HTMLElement) => {
-        return payload;
-    },
-    remove: (node: HTMLElement) => {
-        node.remove();
-        return document.createElement("span");
-    },
-};
+  innerHTML: (node: HTMLElement, payload: string) => {
+    node.innerHTML = payload
+    return node
+  },
+  opacity: (node: HTMLElement, payload: number) => {
+    node.style.opacity = payload.toString()
+    return node
+  },
+  transform: (node: HTMLElement, payload: string) => {
+    node.style.transform = payload
+    return node
+  },
+  appendChild: (node: HTMLElement, ...[payload]: HTMLElement[]) => {
+    node.append(payload)
+    return node
+  },
+  appendSibling: (
+    node: HTMLElement,
+    payload: {
+      element: HTMLElement
+      placement: "beforebegin" | "afterbegin" | "beforeend" | "afterend"
+    }
+  ) => {
+    node.insertAdjacentElement(payload.placement, payload.element)
+    return node
+  },
+  replace: (node: HTMLElement, payload: HTMLElement) => {
+    return payload
+  },
+  remove: (node: HTMLElement) => {
+    node.remove()
+    return document.createElement("span")
+  }
+}
