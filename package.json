@@ -6,7 +6,7 @@
     "unpkg": "umd/ziptied.js",
     "scripts": {
         "test": "tsc && c8 ava",
-        "build": "typedoc && c8 ava",
+        "build": "eslint --fix . && prettier --write . && typedoc && c8 ava",
         "prepack": "tsc --project tsconfig.umd.json && webpack",
         "dev": "tsc --watch",
         "dev:test": "gulp"
