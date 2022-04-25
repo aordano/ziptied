@@ -23,7 +23,6 @@ import { IntendedAny, NodeActionVoidEither } from "./types"
  * ---
  *
  * @date 4/19/2022 - 12:18:05 PM
- * @author Ágata Ordano
  *
  * @template State Type of the state to set.
  * @param {State} value Value to set.
@@ -43,7 +42,6 @@ const arbitrarySet = <State>(value: State): State => {
  * ---
  *
  * @date 4/19/2022 - 12:18:05 PM
- * @author Ágata Ordano
  *
  * @template State Type of the state to mutate.
  * @param {State} value Value to mutate.
@@ -64,7 +62,6 @@ const arbitraryTransform = <State>(value: State, transform: (value: State) => St
  * ---
  *
  * @date 4/19/2022 - 12:18:05 PM
- * @author Ágata Ordano
  *
  * @param arbitrarySet {@link arbitrarySet}
  * @param arbitraryTransform {@link arbitraryTransform}
@@ -88,7 +85,6 @@ export const PrimitiveActions = {
  *
  *
  * @date 4/19/2022 - 12:18:05 PM
- * @author Ágata Ordano
  *
  * @type {Record<string,  (node: HTMLElement, payload?: IntendedAny) => HTMLElement>}
  */

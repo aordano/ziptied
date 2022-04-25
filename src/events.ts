@@ -24,7 +24,6 @@ import {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:32 PM
- * @author Ágata Ordano
  *
  * @export
  * @class ActiveEvent
@@ -36,7 +35,6 @@ export class ActiveEvent<EventData> {
   /**
    * Creates an instance of ActiveEvent.
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} event
@@ -51,7 +49,6 @@ export class ActiveEvent<EventData> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Observable<EventData>}
@@ -61,7 +58,6 @@ export class ActiveEvent<EventData> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, Subscription>}
@@ -71,7 +67,6 @@ export class ActiveEvent<EventData> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -84,7 +79,6 @@ export class ActiveEvent<EventData> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -129,7 +123,6 @@ export class ActiveEvent<EventData> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:32 PM
- * @author Ágata Ordano
  *
  * @export
  * @class MediaQuery
@@ -140,7 +133,6 @@ export class MediaQuery {
   /**
    * Creates an instance of MediaQuery.
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} query
@@ -158,7 +150,6 @@ export class MediaQuery {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {*}
@@ -168,7 +159,6 @@ export class MediaQuery {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Observable<boolean>}
@@ -178,7 +168,6 @@ export class MediaQuery {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, Subscription>}
@@ -188,7 +177,6 @@ export class MediaQuery {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} subscriptionId
@@ -201,7 +189,6 @@ export class MediaQuery {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -214,7 +201,6 @@ export class MediaQuery {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:32 PM
- * @author Ágata Ordano
  *
  * @export
  * @class WidthQuery
@@ -226,7 +212,6 @@ export class WidthQuery extends MediaQuery {
   /**
    * Creates an instance of WidthQuery.
    * @date 4/19/2022 - 12:14:32 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {?number} [max]

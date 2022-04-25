@@ -22,7 +22,6 @@ import type { Node } from "./base"
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:24 PM
- * @author Ágata Ordano
  *
  * @param {string} name
  * @returns {string}
@@ -32,7 +31,6 @@ export const canonicalize = (name: string) => `zt-${name}`
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:24 PM
- * @author Ágata Ordano
  *
  * @param {string} id
  * @param {string} type
@@ -59,7 +57,6 @@ export const elementAccessCheck = (
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:24 PM
- * @author Ágata Ordano
  *
  * @template NodeType extends Node
  * @template Template extends IBaseComponentTemplate<NodeType>
@@ -105,7 +102,6 @@ export const buildAccessError = <
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:24 PM
- * @author Ágata Ordano
  *
  * @type {{}}
  */
@@ -169,7 +165,6 @@ const idDictionary = [
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:24 PM
- * @author Ágata Ordano
  *
  * @param {number} length
  * @returns {string}

@@ -18,7 +18,6 @@ import { isStringExtension } from "./types"
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:08 PM
- * @author Ágata Ordano
  *
  * @export
  * @class TextReplacerTarget
@@ -38,7 +37,6 @@ export class TextReplacerTarget<
   /**
    * Creates an instance of TextReplacerTarget.
    * @date 4/19/2022 - 12:17:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} name
@@ -95,7 +93,6 @@ export class TextReplacerTarget<
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:08 PM
- * @author Ágata Ordano
  *
  * @export
  * @class TextReplacerSelector
@@ -113,7 +110,6 @@ export class TextReplacerSelector<
   /**
    * Creates an instance of TextReplacerSelector.
    * @date 4/19/2022 - 12:17:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} name

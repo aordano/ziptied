@@ -30,7 +30,6 @@ import { buildAccessError, canonicalize, elementAccessCheck, unsafeID } from "./
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @abstract
  * @class BaseComponentTemplate
@@ -45,7 +44,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * Creates an instance of BaseComponentTemplate.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} className
@@ -63,7 +61,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, NodeType>}
@@ -73,7 +70,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @type {*}
@@ -83,7 +79,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @type {*}
@@ -93,7 +88,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -106,7 +100,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -128,7 +121,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -155,7 +147,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -181,7 +172,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Partial<Observer<HTMLElement>>} observer
@@ -198,7 +188,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -239,7 +228,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -274,7 +262,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -311,7 +298,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} elementId
@@ -339,7 +325,6 @@ abstract class BaseComponentTemplate<NodeType extends Node>
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @class ComponentTemplate
  * @typedef {ComponentTemplate}
@@ -350,7 +335,6 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
   /**
    * Creates an instance of ComponentTemplate.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} className
@@ -393,7 +377,6 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @class StatefulComponentTemplate
  * @typedef {StatefulComponentTemplate}
@@ -404,7 +387,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * Creates an instance of StatefulComponentTemplate.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} className
@@ -448,7 +430,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -475,7 +456,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -502,7 +482,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -516,7 +495,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} id
@@ -545,7 +523,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {NodeAction<IntendedAny>} action
@@ -563,7 +540,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template LocalState
@@ -594,7 +570,6 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @abstract
  * @class BaseComponent
@@ -606,7 +581,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * Creates an instance of BaseComponent.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {Template} components
@@ -619,7 +593,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Template}
@@ -629,7 +602,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @readonly
@@ -642,7 +614,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @readonly
@@ -666,7 +637,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {NodeAction<IntendedAny>} action
@@ -691,7 +661,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template Data
@@ -705,7 +674,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} name
@@ -717,7 +685,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template Data
@@ -731,7 +698,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {NodeAction<IntendedAny>} action
@@ -756,7 +722,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template Data
@@ -789,7 +754,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} event
@@ -823,7 +787,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template LocalEvent extends Event
@@ -867,7 +830,6 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @export
  * @class Component
@@ -879,7 +841,6 @@ export class Component extends BaseComponent<ComponentTemplate> {
   /**
    * Creates an instance of Component.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} name
@@ -901,7 +862,6 @@ export class Component extends BaseComponent<ComponentTemplate> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @export
  * @class StatefulComponent
@@ -914,7 +874,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * Creates an instance of StatefulComponent.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} name
@@ -942,7 +901,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {State<SharedState>}
@@ -952,7 +910,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {SharedState}
@@ -962,7 +919,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @type {SharedState}
    */
@@ -973,7 +929,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @type {SharedState}
    */
@@ -984,7 +939,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @readonly
    * @type {State<SharedState>}
@@ -996,7 +950,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {SharedState} newState
@@ -1008,7 +961,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Transform<SharedState>} transform
@@ -1020,7 +972,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template SharedState
@@ -1037,7 +988,6 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:14:08 PM
- * @author Ágata Ordano
  *
  * @export
  * @class DeepStatefulComponent
@@ -1050,7 +1000,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * Creates an instance of DeepStatefulComponent.
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} name
@@ -1086,7 +1035,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {State<SharedState>}
@@ -1096,7 +1044,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {SharedState}
@@ -1106,7 +1053,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @type {SharedState}
    */
@@ -1117,7 +1063,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @type {SharedState}
    */
@@ -1128,7 +1073,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @readonly
    * @type {State<SharedState>}
@@ -1140,7 +1084,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {SharedState} newState
@@ -1152,7 +1095,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Transform<SharedState>} transform
@@ -1164,7 +1106,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template SharedState
@@ -1180,7 +1121,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @template LocalState
@@ -1214,7 +1154,6 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:14:08 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} event

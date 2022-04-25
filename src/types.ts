@@ -16,7 +16,6 @@ import type { OmitProperties, WritableKeys } from "ts-essentials"
 /**
  * TODO  -- Description placeholder
  * @date 4/22/2022 - 11:09:32 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {IntendedAny}
@@ -26,7 +25,6 @@ export type IntendedAny = any
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {DirectlyEditableHTMLProps}
@@ -37,7 +35,6 @@ export type DirectlyEditableHTMLProps = WritableKeys<OmitProperties<HTMLElement,
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {DirectlyEditableStyleProps}
@@ -47,7 +44,6 @@ export type DirectlyEditableStyleProps = WritableKeys<HTMLElement["style"]>
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeAction}
@@ -58,7 +54,6 @@ export type NodeActionVoid<Payload> = (node: HTMLElement, payload?: Payload) => 
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeAction}
@@ -69,7 +64,6 @@ export type NodeAction<Payload> = (node: HTMLElement, payload?: Payload) => HTML
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeActionRequired}
@@ -80,7 +74,6 @@ export type NodeActionRequired<Payload> = (node: HTMLElement, payload: Payload) 
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeActionImpure}
@@ -90,7 +83,6 @@ export type NodeActionImpure = (node: HTMLElement) => HTMLElement
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeActionImpure}
@@ -100,7 +92,6 @@ export type NodeActionEither<Payload> = NodeAction<Payload> | NodeActionImpure
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {NodeActionImpure}
@@ -113,7 +104,6 @@ export type NodeActionVoidEither<Payload> =
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @interface NodeActionRef
@@ -124,7 +114,6 @@ export interface NodeActionRef<Payload> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {string}
    */
@@ -132,7 +121,6 @@ export interface NodeActionRef<Payload> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?Payload}
    */
@@ -142,7 +130,6 @@ export interface NodeActionRef<Payload> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {Transform}
@@ -154,7 +141,6 @@ export type Transform<Data> = (data: Data) => Data
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {OnErrorHandler}
@@ -165,7 +151,6 @@ export type OnErrorHandler = (error: Error) => void
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {OnLifecycleHandler}
@@ -175,7 +160,6 @@ export type OnLifecycleHandler = () => void
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {TextReplacerState}
@@ -193,7 +177,6 @@ export type TextReplacerState<
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @template Selector extends string
  * @template Container extends Record<Selector, unknown>
@@ -214,7 +197,6 @@ export const isStringExtension = <
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @type {{ ENOACTION: string; ENOELEMENT: string; ENOCOMPONENT: string; EEXISTSACTION: string; EEXISTSELEMENT: string; EEXISTSCOMPONENT: string; }}
  */
@@ -230,7 +212,6 @@ export const ZTComponentErrorDescriptions = {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {ZTComponentErrorTypes}
@@ -240,7 +221,6 @@ export type ZTComponentErrorTypes = keyof typeof ZTComponentErrorDescriptions
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @interface ZTComponentError
@@ -252,7 +232,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {string}
    */
@@ -260,7 +239,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {ZTComponentErrorTypes}
    */
@@ -268,7 +246,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {typeof ZTComponentErrorDescriptions[ZTComponentError<Template>["errorType"]]}
    */
@@ -276,7 +253,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {string[]}
    */
@@ -284,7 +260,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {Template}
    */
@@ -292,7 +267,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?string}
    */
@@ -300,7 +274,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?string}
    */
@@ -308,7 +281,6 @@ export interface ZTComponentError<Template> extends Error {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?string}
    */
@@ -318,7 +290,6 @@ export interface ZTComponentError<Template> extends Error {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @interface ZTStatefulComponentError
@@ -330,7 +301,6 @@ export interface ZTStatefulComponentError<Template> extends ZTComponentError<Tem
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?State<any>}
    */
@@ -338,7 +308,6 @@ export interface ZTStatefulComponentError<Template> extends ZTComponentError<Tem
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {?State<any>}
    */
@@ -348,7 +317,6 @@ export interface ZTStatefulComponentError<Template> extends ZTComponentError<Tem
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @typedef {ZTComponentErrorEither}
@@ -362,7 +330,6 @@ export type ZTComponentErrorEither<NodeType, Template> = NodeType extends Statef
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
- * @author Ágata Ordano
  *
  * @export
  * @interface IBaseComponentTemplate
@@ -373,7 +340,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {string}
    */
@@ -382,7 +348,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @type {string[]}
    */
@@ -391,7 +356,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} id
    */
@@ -400,7 +364,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @param {NodeAction<any>} action
@@ -417,7 +380,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @returns {((ZTComponentErrorEither<NodeType, this> | false)[])}
@@ -427,7 +389,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @param {?unknown} [payload]
@@ -441,7 +402,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {Partial<Observer<HTMLElement>>} observer
    * @returns {Subscription[]}
@@ -451,7 +411,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @param {string} elementId
@@ -471,7 +430,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @param {string} elementId
@@ -485,7 +443,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} actionId
    * @param {string} elementId
@@ -501,7 +458,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
-   * @author Ágata Ordano
    *
    * @param {string} elementId
    * @param {Partial<Observer<HTMLElement>>} observer
