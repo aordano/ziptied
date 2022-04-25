@@ -1,9 +1,5 @@
 /**
- * TODO
- *
- *
- *
- *
+ * Base classes to handle reactivity, state and HTML Elements.
  *
  *
  * @module
@@ -22,38 +18,93 @@ import type {
   Transform
 } from "./types"
 import { NodeActions } from "./actions"
+
 /**
- * TODO  -- Description placeholder
+ * ## EditableNode
+ *
+ * The editable node represents a reactive HTMLElement present in the DOM, able to
+ * be directly mutated. The mutations pertain to the editable properties of the element.
+ *
+ * The editable properties are all those that can be written to; {@link DirectlyEditableHTMLProps}
+ * TODO Fix
+ * ---
+ *
+ * ### Usage
+ *
+ * EditableNodes are indexed by element id, so they ought to be unique.
+ *
+ * Original markup:
+ *
+ * ```html
+ * <p id="example">Placeholder</p>
+ * ```
+ *
+ * Added code:
+ *
+ * ```typescript
+ * const exampleEditableNode = new EditableNode("example");
+ *
+ * exampleEditableNode.setProperty("textContent", "Some Text");
+ * ```
+ *
+ * Resulting markup:
+ *
+ * ```html
+ * <p id="example">Some Text</p>
+ * ```
+ *
+ * ---
+ *
+ *
  * @date 4/19/2022 - 12:17:51 PM
- * @author Ágata Ordano
  *
  * @export
  * @class EditableNode
  * @typedef {EditableNode}
- * @template EditableHTMLProp extends HTMLElement[DirectlyEditableHTMLProps]
+ * @template EditableHTMLProp This generic extends HTMLElement[DirectlyEditableHTMLProps]
  * @category Reactive Elements
  */
 export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableHTMLProps]> {
   /**
-   * Creates an instance of EditableNode.
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Creates an instance of EditableNode.
    *
    * @constructor
-   * @param {EditableHTMLProp} initialState
-   * @param {string} id
+   * @param {string} id Id of the element to target as EditableNode
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * const exampleEditableNode = new EditableNode("example");
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   *
    */
-  constructor(public readonly initialState: EditableHTMLProp, public id: string) {
+  constructor(public id: string, public readonly initialState?: EditableHTMLProp) {
     this._subscriptions = {}
     this._transforms = {}
-    this.initialState = initialState
-    this._state = new BehaviorSubject<EditableHTMLProp>(initialState)
+    this._state = {}
   }
 
   /**
-   * TODO  -- Description placeholder
+   * ## Subscriptions
+   *
+   * This property contains the subscriptions that track all changes to the
+   * element properties.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the subscriptions.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, Subscription>}
@@ -61,48 +112,99 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
   protected _subscriptions: Record<string, Subscription>
 
   /**
-   * TODO  -- Description placeholder
+   * ## State
+   *
+   * This property contains the Subject that handles the updates and changes
+   * to the current state of the element.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the subscriptions.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
-   * @type {BehaviorSubject<EditableHTMLProp>}
+   * @type {Record<string, BehaviorSubject<EditableHTMLProp>>}
    */
-  protected _state: BehaviorSubject<EditableHTMLProp>
+  protected _state: Record<string, BehaviorSubject<EditableHTMLProp>>
 
   /**
-     * TODO  -- Description placeholder
-     * @date 4/19/2022 - 12:17:51 PM
-     * @author Ágata Ordano
-     *
-     * @protected
-     * @type {(Record<
-            string,
-            Transform<EditableHTMLProp> | undefined
-        >)}
-     */
+   * ## Transforms
+   *
+   * This property contains all the registered transforms to invoke when needed by the
+   * property modification methods.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the transforms.
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   *
+   * @protected
+   * @type {(Record<string, Transform<EditableHTMLProp> | undefined>)}
+   */
   protected _transforms: Record<string, Transform<EditableHTMLProp> | undefined>
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Set Direct Property Observer
+   *
+   * This method subscribes to the given property, and applies the given transform
+   * when the subscription is executed.
    *
    * @protected
-   * @param {DirectlyEditableHTMLProps} nodeProperty
-   * @param {Transform<EditableHTMLProp>} [transform=(data) => data]
-   * @param {?Observer<EditableHTMLProp>["error"]} [onError]
-   * @param {?Observer<EditableHTMLProp>["complete"]} [onLifecycle]
+   * @param {DirectlyEditableHTMLProps} nodeProperty Property to track and transform
+   * @param {Transform<EditableHTMLProp>} transform  Transform function to mutate the property
+   * @param {?boolean} failSilently Flag to choose if throwing on indexing errors (property
+   * already being tracked or inexistent node)
+   * @param {?Observer<EditableHTMLProp>["error"]} onError Callback to execute on error during
+   * the application of the transformation
+   * @param {?Observer<EditableHTMLProp>["complete"]} onLifecycle Callback to execute when the
+   * property gets unsubscribed from
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the subscriptions.
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
   protected _setDirectPropertyObserver(
     nodeProperty: DirectlyEditableHTMLProps,
     transform: Transform<EditableHTMLProp> = (data) => data,
+    failSilently?: boolean,
     onError?: Observer<EditableHTMLProp>["error"],
     onLifecycle?: Observer<EditableHTMLProp>["complete"]
   ): void {
-    this._subscriptions[nodeProperty] = this._state.subscribe({
+    const element = document.getElementById(this.id)
+
+    if (this._state[nodeProperty] || !element) {
+      if (element) {
+        if (!failSilently) {
+          throw new Error(`Property ${nodeProperty} already exists`)
+        }
+        return
+      }
+      if (!failSilently) {
+        throw new Error(`Node with id ${this.id} does not exist`)
+      }
+      return
+    }
+
+    this._state[nodeProperty] = new BehaviorSubject(element[nodeProperty] as EditableHTMLProp)
+    this._subscriptions[nodeProperty] = this._state[nodeProperty].subscribe({
       next: (data) => {
-        Object.defineProperty(document.getElementById(this.id), nodeProperty, {
+        Object.defineProperty(element, nodeProperty, {
           value: transform(data)
         })
       },
@@ -112,12 +214,23 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Unset Direct Property Observer
+   *
+   * This method unsubscribes to the given property.
    *
    * @protected
-   * @param {DirectlyEditableHTMLProps} nodeProperty
+   * @param {DirectlyEditableHTMLProps} nodeProperty Property name to unsusbcribe from
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the subscriptions.
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   *
    */
   protected _unsetDirectPropertyObserver(nodeProperty: DirectlyEditableHTMLProps): void {
     if (!this._subscriptions[nodeProperty]) {
@@ -128,68 +241,188 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Set Property as Reactive
+   *
+   * This method lets you select a property, mark it for tracking and mutate it with a
+   * transform function.
+   *
+   * This means that when the value is updated, the transform function will modify it
+   * accordingly and then set it to the given property.
    *
    * @public
-   * @param {DirectlyEditableHTMLProps} property
-   * @param {?Transform<EditableHTMLProp>} [transform]
-   * @param {?Observer<EditableHTMLProp>["error"]} [onError]
-   * @param {?Observer<EditableHTMLProp>["complete"]} [onLifecycle]
+   * @param {DirectlyEditableHTMLProps} property Property name to modify
+   * @param {?Transform<EditableHTMLProp>} transform Transform to modify based off the current value
+   * @param {?boolean} failSilently Flag to choose if throwing on indexing errors (property
+   * already being tracked or inexistent node)
+   * @param {?Observer<EditableHTMLProp>["error"]} onError Callback to execute on error during
+   * the application of the transformation
+   * @param {?Observer<EditableHTMLProp>["complete"]} onLifecycle Callback to execute when the
+   * property gets unsubscribed from
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * Define the transform function and then call this method to apply it:
+   *
+   * ```typescript
+   * // exampleEditableNode.innerText == "Some text"
+   *
+   * let transformText = (data) => data
+   * exampleEditableNode.setProperty("innerText", transformText);
+   *
+   * exampleEditableNode.update("innerText", "Some Other Text");
+   * // exampleEditableNode.innerText == "Some Other Text"
+   *
+   * transformText = (data) => data.reverse();
+   *
+   * exampleEditableNode.update("innerText", "Some Other Extra Text");
+   * // exampleEditableNode.innerText == "txeT artxE rehtO emoS"
+   * ```
+   *
+   * Alternatively define callbacks to execute on error and when the property is unsubscribed from.
+   *
+   * ---
+   *
+   * ### Notes
+   *
+   * Properties marked for tracking cannot ve overwritten. If you need to change the transform
+   * function, make it mutable (nothing to lose as this methods are already mutable) and change that.
+   *
+   * This ensures that nothing has duplicate subscriptions and minimizes error surface.
+   *
+   * The assignation of the property will error out if it's already set as reactive or if the node
+   * does not exist. This errors happen _before_ any transform is executed, they are located in
+   * the setting the property as reactive. The parameter {@link failSilently} lets you choose
+   * if throwing or just returning without doing nothing.
+   *
+   * If you need more flexibilty or immutability consider using a {@link Node} instead of doing
+   * with an EditableNode.
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
-  public setProperty(
+  public setReactiveProperty(
     property: DirectlyEditableHTMLProps,
     transform?: Transform<EditableHTMLProp>,
+    failSilently?: boolean,
     onError?: Observer<EditableHTMLProp>["error"],
     onLifecycle?: Observer<EditableHTMLProp>["complete"]
   ): void {
     this._transforms[property] = transform
-    this._setDirectPropertyObserver(property, transform, onError, onLifecycle)
+    this._setDirectPropertyObserver(property, transform, failSilently, onError, onLifecycle)
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Unset Property
+   *
+   * This method lets you select a property, remove it from the tracking and unsubscribe
+   * from it.
    *
    * @public
-   * @param {DirectlyEditableHTMLProps} property
+   * @param {DirectlyEditableHTMLProps} property Property name to unsibscribe from
+   * and stop tracking
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * exampleEditableNode.unsetProperty("innerText"); // Stops its reactivity
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
   public unsetProperty(property: DirectlyEditableHTMLProps): void {
     this._unsetDirectPropertyObserver(property)
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Update
    *
    * @public
-   * @param {EditableHTMLProp} value
+   * @param {DirectlyEditableHTMLProps} property Name of the editable property to update
+   * @param {EditableHTMLProp} value Value to set the property to (passed to the transform function,
+   * see {@link setReactiveProperty})
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * // exampleEditableNode.innerText == "Some text"
+   * exampleEditableNode.update("innerText", "Some Other Text");
+   *
+   * // exampleEditableNode.innerText == "Some Other Text"
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
-  public update(value: EditableHTMLProp): void {
-    this._state.next(value)
+  public update(property: DirectlyEditableHTMLProps, value: EditableHTMLProp): void {
+    this._state[property].next(value)
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
+   * ## Add Side Effect
+   *
+   * This method lets you attach an arbitrary Observer to whatever property you're tracking.
    *
    * @public
-   * @param {Partial<Observer<EditableHTMLProp>>} observer
+   * @param {DirectlyEditableHTMLProps} property Name of the tracked property to subscribe to
+   * @param {Partial<Observer<EditableHTMLProp>>} observer External observer to call
+   * on every update
+   * @param {?boolean} failSilently Flag to choose if throwing on indexing errors (property
+   * already being tracked or inexistent node)
+   *
+   * ---
+   *
+   *  ### Usage
+   *
+   * ```typescript
+   * const externalObserver = {next: (data) => console.log(data)};
+   *
+   * exampleEditableNode.addSideEffect("innerText", externalObserver);
+   *
+   * exampleEditableNode.update("innerText", "Some Other Text");
+   *
+   * // console: "Some Other Text"
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    * @returns {Subscription}
    */
-  public sideEffect(observer: Partial<Observer<EditableHTMLProp>>): Subscription {
-    return this._state.subscribe(observer)
+  public sideEffect(
+    property: DirectlyEditableHTMLProps,
+    observer: Partial<Observer<EditableHTMLProp>>,
+    failSilently?: boolean
+  ): Subscription | void {
+    const element = document.getElementById(this.id)
+
+    if (!this._state[property] || !element) {
+      if (element) {
+        if (!failSilently) {
+          throw new Error(`Property ${property} is not being tracked`)
+        }
+        return
+      }
+      if (!failSilently) {
+        throw new Error(`Node with id ${this.id} does not exist`)
+      }
+      return
+    }
+
+    return this._state[property].subscribe(observer)
   }
 }
 
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:51 PM
- * @author Ágata Ordano
  *
  * @export
  * @class State
@@ -201,7 +434,6 @@ export class State<Data> {
   /**
    * Creates an instance of State.
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {Data} initialState
@@ -214,7 +446,6 @@ export class State<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {BehaviorSubject<Data>}
@@ -224,7 +455,6 @@ export class State<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Data} value
@@ -236,7 +466,6 @@ export class State<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Partial<Observer<Data>>} observer
@@ -250,7 +479,6 @@ export class State<Data> {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:51 PM
- * @author Ágata Ordano
  *
  * @export
  * @class Node
@@ -261,7 +489,6 @@ export class Node {
   /**
    * Creates an instance of Node.
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} id
@@ -317,7 +544,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {boolean}
@@ -327,7 +553,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {() => HTMLElement}
@@ -337,7 +562,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Subscription}
@@ -347,7 +571,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, Subscription>}
@@ -357,7 +580,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {BehaviorSubject<HTMLElement>}
@@ -367,7 +589,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {BehaviorSubject<NodeActionRef<IntendedAny>>}
@@ -377,7 +598,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, NodeAction<IntendedAny>>}
@@ -387,7 +607,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -420,7 +639,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -433,7 +651,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {string} actionId
@@ -446,7 +663,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @readonly
@@ -459,7 +675,6 @@ export class Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Partial<Observer<HTMLElement>>} observer
@@ -473,7 +688,6 @@ export class Node {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:51 PM
- * @author Ágata Ordano
  *
  * @export
  * @class StatefulNode
@@ -485,7 +699,6 @@ export class StatefulNode extends Node {
   /**
    * Creates an instance of StatefulNode.
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @constructor
    * @param {string} id
@@ -514,7 +727,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, State<IntendedAny>>}
@@ -524,7 +736,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Record<string, IntendedAny>}
@@ -534,7 +745,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {?string} [stateKey]
@@ -547,7 +757,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {?string} [stateKey]
@@ -560,7 +769,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {unknown} newState
@@ -583,7 +791,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Transform<unknown>} transform
@@ -596,7 +803,6 @@ export class StatefulNode extends Node {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {NodeAction<IntendedAny>} action
@@ -615,7 +821,6 @@ export class StatefulNode extends Node {
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:51 PM
- * @author Ágata Ordano
  *
  * @export
  * @class Stream
@@ -627,7 +832,6 @@ export class Stream<Data> {
   /**
    * Creates an instance of Stream.
    * @date 4/19/2022 - 12:17:51 PM
-   * @author Ágata Ordano
    *
    * @constructor
    */
@@ -638,7 +842,6 @@ export class Stream<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:50 PM
-   * @author Ágata Ordano
    *
    * @protected
    * @type {Subject<Data>}
@@ -648,7 +851,6 @@ export class Stream<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:50 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {(data: unknown) => Data} transform
@@ -662,7 +864,6 @@ export class Stream<Data> {
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:17:50 PM
-   * @author Ágata Ordano
    *
    * @public
    * @param {Data} value
