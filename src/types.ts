@@ -53,6 +53,17 @@ export type DirectlyEditableStyleProps = WritableKeys<HTMLElement["style"]>
  * @typedef {NodeAction}
  * @template Payload
  */
+export type NodeActionVoid<Payload> = (node: HTMLElement, payload?: Payload) => void
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:18:36 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @typedef {NodeAction}
+ * @template Payload
+ */
 export type NodeAction<Payload> = (node: HTMLElement, payload?: Payload) => HTMLElement
 
 /**
@@ -75,6 +86,29 @@ export type NodeActionRequired<Payload> = (node: HTMLElement, payload: Payload) 
  * @typedef {NodeActionImpure}
  */
 export type NodeActionImpure = (node: HTMLElement) => HTMLElement
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:18:36 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @typedef {NodeActionImpure}
+ */
+export type NodeActionEither<Payload> = NodeAction<Payload> | NodeActionImpure
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:18:36 PM
+ * @author Ágata Ordano
+ *
+ * @export
+ * @typedef {NodeActionImpure}
+ */
+export type NodeActionVoidEither<Payload> =
+  | NodeActionVoid<Payload>
+  | NodeAction<Payload>
+  | NodeActionImpure
 
 /**
  * TODO  -- Description placeholder
