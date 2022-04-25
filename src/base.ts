@@ -16,11 +16,12 @@ import type {
   IntendedAny,
   NodeAction,
   NodeActionRef,
+  NodeActionVoidEither,
   OnErrorHandler,
   OnLifecycleHandler,
   Transform
 } from "./types"
-import { Nodes } from "./actions"
+import { NodeActions } from "./actions"
 /**
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:17:51 PM
@@ -307,11 +308,9 @@ export class Node {
     this._actions = {}
     this._actionSubscriptions = {}
 
-    const defaultActionKeys: (keyof typeof Nodes)[] = Object.keys(
-      Nodes
-    ) as unknown as (keyof typeof Nodes)[]
+    const defaultActionKeys: (keyof typeof NodeActions)[] = Object.keys(NodeActions)
     defaultActionKeys.forEach((actionKey) => {
-      this.addAction(actionKey, Nodes[actionKey])
+      this.addAction(actionKey, NodeActions[actionKey])
     })
   }
 
@@ -383,7 +382,7 @@ export class Node {
    * @protected
    * @type {Record<string, NodeAction<IntendedAny>>}
    */
-  protected _actions: Record<string, NodeAction<IntendedAny>>
+  protected _actions: Record<string, NodeActionVoidEither<IntendedAny>>
 
   /**
    * TODO  -- Description placeholder
@@ -398,7 +397,7 @@ export class Node {
    */
   public addAction(
     actionId: string,
-    action: NodeAction<IntendedAny>,
+    action: NodeActionVoidEither<IntendedAny>,
     onError?: OnErrorHandler,
     onLifecycle?: OnLifecycleHandler
   ) {
@@ -406,7 +405,10 @@ export class Node {
     this._actionSubscriptions[actionId] = this._action.subscribe({
       next: (data) => {
         if (data.id === actionId) {
-          this._node.next(action(this._nodeElement(), data.payload))
+          const returnNode = action(this._nodeElement(), data.payload)
+          if (returnNode) {
+            this._node.next(returnNode)
+          }
         }
         return data
       },
