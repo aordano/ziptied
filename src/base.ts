@@ -26,32 +26,66 @@ import { NodeActions } from "./actions"
  * be directly mutated. The mutations pertain to the editable properties of the element.
  *
  * The editable properties are all those that can be written to; {@link DirectlyEditableHTMLProps}
- * TODO Fix
+ *
  * ---
  *
  * ### Usage
  *
+ * #### Setting up the EditableNode
+ *
  * EditableNodes are indexed by element id, so they ought to be unique.
  *
- * Original markup:
+ * To define a new EditableNode, you need to set an element with a given id and
+ * create a new instance of EditableNode with that id.
+ *
+ * ---
+ *
+ * You can then use the methods of EditableNode to mutate the element.
+ *
+ * For example let's take a `<p>` element with some text inside, mark it as EditableNode
+ * and mutate its contents:
+ *
+ * Original markup
  *
  * ```html
  * <p id="example">Placeholder</p>
  * ```
  *
- * Added code:
+ * Then you can add the logic required
  *
  * ```typescript
+ * // This binds the element as an EditableNode.
  * const exampleEditableNode = new EditableNode("example");
  *
- * exampleEditableNode.setProperty("textContent", "Some Text");
+ * // This sets the property "textContent" to be reactive.
+ * exampleEditableNode.setProperty("textContent");
+ *
+ * // This updates the element with the new value.
+ * exampleEditableNode.update("textContent", "Hello World!");
+ *
  * ```
  *
- * Resulting markup:
+ * With the resulting markup being
  *
  * ```html
- * <p id="example">Some Text</p>
+ * <p id="example">Hello World!</p>
  * ```
+ *
+ * ---
+ *
+ *
+ * #### Using the EditableNode
+ *
+ * The EditableNode contains methods that allow you to set any editable property as reactive
+ * and tracked, to dispense new values to any tracked property, and to attach arbitrary
+ * side effects when any of those properties react to changes given.
+ *
+ * These are:
+ *
+ * - `setReactiveProperty`: Sets a property as reactive.
+ * - `unsetReactiveProperty`: Stops the reactivity on the given property.
+ * - `update`: Updates the value of a property.
+ * - `sideEffect`: Attachs an arbitrary, external side effect to a reactive property.
  *
  * ---
  *
@@ -80,6 +114,18 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    * ```
    *
    * ---
+   *
+   * ### Notes
+   *
+   * Creating a instance of EditableNode implies finding the element by id, and
+   * appending reactivity logic to its demeanor. That means that the minor
+   * hydration provided by this class can be instantiated at any time, not just when
+   * the page loads.
+   *
+   * This can be useful to minimize the time to interactivity at the start of the page,
+   * allowing you to lazy-load any reactivity you need or delaying it until user interaction
+   * with a specific element; nothing prevents you to attach an onclick() that fires the
+   * new instance and provides the reactivity at the exact time.
    *
    * @date 4/19/2022 - 12:17:51 PM
    *
@@ -121,7 +167,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    *
    * ### Usage
    *
-   * This is not part of the public API, is used internally to track the subscriptions.
+   * This is not part of the public API, is used internally to access the subscriptions.
    *
    * ---
    *
@@ -142,7 +188,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    *
    * ### Usage
    *
-   * This is not part of the public API, is used internally to track the transforms.
+   * This is not part of the public API, is used internally to access the transforms.
    *
    * ---
    *
@@ -173,7 +219,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    *
    * ### Usage
    *
-   * This is not part of the public API, is used internally to track the subscriptions.
+   * This is not part of the public API, is used internally to perform the subscriptions.
    *
    * ---
    *
@@ -225,7 +271,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    *
    * ### Usage
    *
-   * This is not part of the public API, is used internally to track the subscriptions.
+   * This is not part of the public API, is used internally to remove subscriptions.
    *
    * ---
    *
@@ -269,11 +315,13 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    * // exampleEditableNode.innerText == "Some text"
    *
    * let transformText = (data) => data
-   * exampleEditableNode.setProperty("innerText", transformText);
+   * // The transform can be omitted if you just want to set the data.
+   * exampleEditableNode.setReactiveProperty("innerText", transformText); // equivalent to .setReactiveProperty("innerText")
    *
    * exampleEditableNode.update("innerText", "Some Other Text");
    * // exampleEditableNode.innerText == "Some Other Text"
    *
+   * // We can mutate the transform function at any time.
    * transformText = (data) => data.reverse();
    *
    * exampleEditableNode.update("innerText", "Some Other Extra Text");
@@ -286,7 +334,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    *
    * ### Notes
    *
-   * Properties marked for tracking cannot ve overwritten. If you need to change the transform
+   * Properties marked for tracking cannot be overwritten. If you need to change the transform
    * function, make it mutable (nothing to lose as this methods are already mutable) and change that.
    *
    * This ensures that nothing has duplicate subscriptions and minimizes error surface.
@@ -308,8 +356,9 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
     onError?: Observer<EditableHTMLProp>["error"],
     onLifecycle?: Observer<EditableHTMLProp>["complete"]
   ): void {
-    this._transforms[property] = transform
-    this._setDirectPropertyObserver(property, transform, failSilently, onError, onLifecycle)
+    const definedTransform = transform ? transform : (data: EditableHTMLProp) => data
+    this._transforms[property] = definedTransform
+    this._setDirectPropertyObserver(property, definedTransform, failSilently, onError, onLifecycle)
   }
 
   /**
@@ -327,14 +376,23 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
    * ### Usage
    *
    * ```typescript
-   * exampleEditableNode.unsetProperty("innerText"); // Stops its reactivity
+   * exampleEditableNode.unsetReactiveProperty("innerText"); // Stops its reactivity
    * ```
    *
    * ---
    *
+   * ### Notes
+   *
+   * Unsetting the property means consuming the subscription, so executing this method will
+   * trigger any lifetime callback you set on it.
+   *
+   * This implies that if you added some cleanup, or some unmounting/notification
+   * behavior lifecycle completion, it will be immediately executed, and you should
+   * consider the impact on the event loop and maybe add external async logic to manage that.
+   *
    * @date 4/19/2022 - 12:17:51 PM
    */
-  public unsetProperty(property: DirectlyEditableHTMLProps): void {
+  public unsetReactiveProperty(property: DirectlyEditableHTMLProps): void {
     this._unsetDirectPropertyObserver(property)
   }
 
