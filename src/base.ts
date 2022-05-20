@@ -479,7 +479,55 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
 }
 
 /**
- * TODO  -- Description placeholder
+ * ## State
+ *
+ * Base element that wraps a Subject to easily store state reactively.
+ *
+ * It allows you to store a single type of value, and fire side effects every time it updates.
+ *
+ * ---
+ *
+ * ### Usage
+ *
+ * This element has two methods; `update` and `subscribe`.
+ *
+ * `update` lets you store a new value (of the same type) to the element state.
+ * `subscribe` lets you attach a callback to every change of the element state.
+ *
+ * To use this element, first you need to create a new instance of it:
+ *
+ * ```typescript
+ * const state = new State("I am being stored");
+ * ```
+ *
+ * You cannot imperatively access this value, but you can subscribe other element to its changes:
+ *
+ * ```typescript
+ * const externalObserver = {next: (data) => console.log(data)};
+ * state.subscribe(externalObserver);
+ *
+ * state.update("I am being updated"); // console: "I am being updated"
+ * ```
+ *
+ * ---
+ *
+ * ### Notes
+ *
+ * Due to the subscriber being a common Observer, you can add any kind of lifecycle callback to it. This allows you
+ * to handle dismounting the state element, or to add some cleanup logic:
+ *
+ * ```typescript
+ * const externalObserver2 = {
+ *    next: (data) => console.log(data),
+ *    finally: () => console.log("It's dead.")
+ * };
+ *
+ * const subscription = state.subscribe(externalObserver2);
+ *
+ * state.update("I am being updated again"); // console: "I am being updated again"
+ * subscription.unsubscribe(); // console: "It's dead."
+ * ```
+ *
  * @date 4/19/2022 - 12:17:51 PM
  *
  * @export
@@ -491,10 +539,11 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
 export class State<Data> {
   /**
    * Creates an instance of State.
-   * @date 4/19/2022 - 12:17:51 PM
+   *
+   * @param {Data} initialState State to initialize the element with.
    *
    * @constructor
-   * @param {Data} initialState
+   * @date 4/19/2022 - 12:17:51 PM
    */
   constructor(public readonly initialState: Data) {
     this.initialState = initialState
@@ -502,31 +551,73 @@ export class State<Data> {
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
+   * ## State
+   *
+   * This property holds the reactive object managing the state.
    *
    * @protected
    * @type {BehaviorSubject<Data>}
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to contain state.
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
   protected _state: BehaviorSubject<Data>
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
+   * ## Update
+   *
+   * This method updates the state and broadcasts the values to all subscribers.
    *
    * @public
-   * @param {Data} value
+   * @param {Data} value Value to set the state to.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * state.update("I am being updated");
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
   public update(value: Data): void {
     this._state.next(value)
   }
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
+   * ## Subscribe
+   *
+   * This method lets you attach an arbitrary Observer to the current state.
+   *
    *
    * @public
    * @param {Partial<Observer<Data>>} observer
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * const externalObserver = {next: (data) => console.log(data)};
+   *
+   * state.subscribe(externalObserver);
+   *
+   * state.update("I am being updated"); // console: "I am being updated"
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    * @returns {Subscription}
    */
   public subscribe(observer: Partial<Observer<Data>>): Subscription {
