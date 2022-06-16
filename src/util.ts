@@ -16,8 +16,11 @@ import {
   ZTComponentErrorEither,
   ZTComponentErrorTypes
 } from "./types"
-
 import type { Node } from "./base"
+
+// https://stackoverflow.com/questions/63116039/camelcase-to-kebab-case
+const kebabize = (str: string) =>
+  str.replace(/[A-Z]+(?![a-z])|[A-Z]/g, ($, ofs) => (ofs ? "-" : "") + $.toLowerCase())
 
 /**
  * TODO  -- Description placeholder
@@ -26,7 +29,23 @@ import type { Node } from "./base"
  * @param {string} name
  * @returns {string}
  */
-export const canonicalize = (name: string) => `zt-${name}`
+export const canonicalize = (name: string) => {
+  return `zt-${kebabize(name)}`
+}
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:24 PM
+ *
+ * @param {string} name
+ * @returns {string}
+ */
+export const decanonicalize = (ztName: string) =>
+  ztName
+    .slice(3, ztName.length)
+    .replace(/-/g, () => " ")
+    .replace(/\s.{1}/g, (letter) => letter.toUpperCase())
+    .replace(/\s/g, "")
 
 /**
  * TODO  -- Description placeholder
