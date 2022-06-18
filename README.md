@@ -1,6 +1,8 @@
 # Ziptied
 
-Modernizing static sites the easy way.
+Modernizing static sites the easy way. 
+
+This is still a WIP and should not be used for anything critical. Watch out for a 1.0 release.
 
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/8479c7e72cdf4e1b81d1acbe2d37f660)](https://www.codacy.com/gh/nodoambiental/ziptied/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nodoambiental/ziptied&amp;utm_campaign=Badge_Grade) [![DeepSource](https://deepsource.io/gh/nodoambiental/ziptied.svg/?label=active+issues&show_trend=true&token=wB-9fMynOQMJ1Kkt_0wiegLw)](https://deepsource.io/gh/nodoambiental/ziptied/?ref=repository-badge)
 
