@@ -178,6 +178,23 @@ export type TextReplacerState<
  * TODO  -- Description placeholder
  * @date 4/19/2022 - 12:18:36 PM
  *
+ * @export
+ * @typedef {DataReplacerState}
+ * @template Selector extends string
+ * @template Corpus extends Record<Selector, Record<string, string>>
+ */
+export type DataReplacerState<
+  Selector extends string,
+  Corpus extends Record<Selector, Record<string, unknown>>
+> = {
+  selected: Selector
+  corpus: Corpus
+}
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:18:36 PM
+ *
  * @template Selector extends string
  * @template Container extends Record<Selector, unknown>
  * @param {unknown} key
