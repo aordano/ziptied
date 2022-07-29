@@ -542,6 +542,24 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @public
+   * @param {string} id
+   * @param {NodeAction<IntendedAny>} action
+   * @param {string} stateKey
+   * @returns {Subscription}
+   */
+  public sideEffectLocalStatefulFor(
+    id: string,
+    action: NodeAction<IntendedAny>,
+    stateKey: string
+  ): Subscription {
+    return this._elements[id].sideEffectStateful(action, stateKey)
+  }
+
+  /**
+   * TODO  -- Description placeholder
+   * @date 4/19/2022 - 12:14:08 PM
+   *
+   * @public
    * @template LocalState
    * @param {string} elementId
    * @param {NodeAction<LocalState>} action
