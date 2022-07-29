@@ -626,7 +626,86 @@ export class State<Data> {
 }
 
 /**
- * TODO  -- Description placeholder
+ * ## Node
+ *
+ * The node represents a reactive HTMLElement present in the DOM, not directly mutable.
+ * The reactivity is given by completely replacing the element in the DOM on a given change.
+ *
+ * This might incur a performance penalty on simple modifications, but eases a lot of work, and increases
+ * performance on very complex ones. Also, it's the only way to completely alter non-editable properties.
+ *
+ * This is the main building block used to hancle any UI changes in the DOM. Its versatility and ease of use
+ * lets you do much more powerful things than what you could do directly handling the editable properties of a DOM node.
+ *
+ * ---
+ *
+ * ### Usage
+ *
+ * #### Setting up the Node
+ *
+ * Nodes are designed to be used independently of any semantic properties you might require for an element; this can be achieved
+ * by defining the element as part of a `Component`. Components supercharge the features of the Node, allowing you to have several
+ * instances of the same Node, with shared (or different) actions, behaviors, and side effects.
+ *
+ * To enable this behavior, the Node can be instantiated with a flag that defines it as part of a Component or just
+ * as a standalone Node .
+ *
+ *
+ * #### Setting up the Node as a standalone element
+ *
+ * To define a new Node, you need to set an element with a given id and
+ * create a new instance of Node with that id, optionally a callback to be called when during
+ * the consumption of an action there's an error, and optionally a callback to be called when the element reaches
+ * the end of its life.
+ *
+ * ```typescript
+ * const node = new Node("my-node", (error) => console.error(error), () => console.log("It's dead."));
+ * ```
+ *
+ * #### Setting up the Node as part of a Component
+ *
+ * To define a new Node as part of a Component, you operate like in the case of the standalone Node, setting the component flag,
+ * but the id you define will be stored in the element's `data-zt-id` attribute.
+ * This is the same id you use to define the Node in the Component, and lets you have arbitrary copies of the same element.
+ *
+ * ```typescript
+ * const componentNode = new Node("my-node", (error) => console.error(error), () => console.log("It's dead."), true);
+ * ```
+ *
+ * ---
+ *
+ * With an instantiated Node, you can define an action.
+ *
+ * An action is a function that takes a HTMLElement and (usually) returns an HTMLElement, performing aribtrary modifications or
+ * outright returning a different HTMLElement. The return value will be set as the next value for the Node, updating the DOM
+ * to display it. For more information see {@link Actions}.
+ *
+ * ---
+ *
+ * #### Using the Node
+ *
+ * The Node contains methods that allow you to freely modify the element via the firing and consuming of *actions*, and side effects.
+ *
+ * The reactivity itself is handled by the Node, letting you specify what actions are to be performed and when.
+ *
+ * This class contains a series of methods that allow you to directly handle the setting, firing and consuming of actions and side effects.
+ *
+ * These are:
+ *
+ * - `addAction`: Defines an action for the Node.
+ * - `removeAction`: Removes an action definition from the Node.
+ * - `fireAction`: Fires the selected action.
+ * - `sideEffect`: Attachs an arbitrary, external side effect on change.
+ * - `actionsList`: Returns the list of currently defined actions.
+ *
+ * ---
+ *
+ * ### Notes
+ *
+ * See the usage guide for more information.
+ *
+ *
+ *
  * @date 4/19/2022 - 12:17:51 PM
  *
  * @export
@@ -636,14 +715,43 @@ export class State<Data> {
  */
 export class Node {
   /**
-   * Creates an instance of Node.
-   * @date 4/19/2022 - 12:17:51 PM
+   * ## Creates an instance of Node.
    *
    * @constructor
    * @param {string} id
    * @param {?Observer<HTMLElement>["error"]} [onError]
    * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
    * @param {?boolean} [isComponent]
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * const exampleNode = new Node("example");
+   *
+   * const exampleNodeWithError = new Node("example2",(error) => console.error(error));
+   *
+   * const exampleNodeWithErrorAndLifecycle = new Node("example3",(error) => console.error(error), () => console.log("It's dead."));
+   *
+   * const exampleComponentNode = new Node("example", undefined, undefined, true);
+   *
+   * const exampleComponentNodeWithErrorAndLifecycle = new Node("example2",(error) => console.error(error), () => console.log("It's dead."), true);
+   * ```
+   *
+   * ---
+   *
+   * ### Notes
+   *
+   * Creating a instance of a standalone Node implies finding the element by id, and
+   * appending reactivity logic to its demeanor. That means that the minor
+   * hydration provided by this class can be instantiated at any time, not just when
+   * the page loads.
+   *
+   * This can be useful to minimize the time to interactivity at the start of the page,
+   * allowing you to lazy-load any reactivity you need or delaying it until user interaction
+   * with a specific element; nothing prevents you to attach an onclick() that fires the
+   * new instance and provides the reactivity at the exact time.
+   *
+   * @date 4/19/2022 - 12:17:51 PM
    */
   constructor(
     protected id: string,
@@ -690,8 +798,18 @@ export class Node {
     })
   }
 
-  /**
-   * TODO  -- Description placeholder
+  /** ## Is Component
+   *
+   * This property holds the component behavior flag set up an instantiation.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the Node's target behavior.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -700,7 +818,18 @@ export class Node {
   protected _isComponent: boolean
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Node Element
+   *
+   * This property contains a function pointer that returns the current HTMLElement to display on change.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to display the element.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -709,7 +838,19 @@ export class Node {
   protected _nodeElement: () => HTMLElement
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Node Subscription
+   *
+   * This property contains the subscription that track all changes to the
+   * element.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track changes to the element.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -718,7 +859,18 @@ export class Node {
   protected _nodeSubscription: Subscription
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Action Subscriptions
+   *
+   * This property contains the subscriptions that track all changes for the actions defined.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track actions and element change.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -727,7 +879,18 @@ export class Node {
   protected _actionSubscriptions: Record<string, Subscription>
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Node
+   *
+   * This property contains the Subject that tracks the current state and updates the element.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track updates to the element.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -736,7 +899,18 @@ export class Node {
   protected _node: BehaviorSubject<HTMLElement>
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Action
+   *
+   * This property contains the Subject that tracks the current state and updates the current action.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track updates to the current action.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -745,7 +919,19 @@ export class Node {
   protected _action: BehaviorSubject<NodeActionRef<IntendedAny>>
 
   /**
-   * TODO  -- Description placeholder
+   *  ## Actions
+   *
+   * This property contains the subscriptions that track all changes to the
+   * element properties.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to track the subscriptions.
+   *
+   * ---
+   *
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
@@ -754,14 +940,26 @@ export class Node {
   protected _actions: Record<string, NodeActionVoidEither<IntendedAny>>
 
   /**
-   * TODO  -- Description placeholder
-   * @date 4/19/2022 - 12:17:51 PM
+   *  ## Add Action
+   *
+   * This method lets you define an action and attach it to the Node.
    *
    * @public
-   * @param {string} actionId
-   * @param {NodeAction<IntendedAny>} action
-   * @param {?OnErrorHandler} [onError]
-   * @param {?OnLifecycleHandler} [onLifecycle]
+   * @param {string} actionId Identifier for the action to be used on invoking it.
+   * @param {NodeAction<IntendedAny>} action The action to bind to the Node.
+   * @param {?OnErrorHandler} [onError] Callback function to execute on error.
+   * @param {?OnLifecycleHandler} [onLifecycle] Callback function to execute on action unsubscription.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   *
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   *
    */
   public addAction(
     actionId: string,
