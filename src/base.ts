@@ -959,11 +959,15 @@ export class StatefulNode extends Node {
    * @returns {Subscription}
    */
   public sideEffectStateful(action: NodeAction<IntendedAny>, stateKey?: string): Subscription {
-    return this._states[stateKey ?? "default"].subscribe({
-      next: (state) => {
-        action(this._nodeElement(), state)
-      }
-    })
+    const stateObject = this._states[stateKey ?? "default"]
+    if (stateObject) {
+      return stateObject.subscribe({
+        next: (state) => {
+          action(this._nodeElement(), state)
+        }
+      })
+    }
+    throw new Error(`State entry ${stateKey} does not exist for node ${this.id}`)
   }
 }
 
