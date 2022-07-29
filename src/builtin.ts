@@ -11,29 +11,12 @@
  */
 
 import { Component, DeepStatefulComponent } from "./component"
-import type { OnErrorHandler, TextReplacerState } from "./types"
+import type { IntendedAny, OnErrorHandler, TextReplacerState, ZTDataDictionary } from "./types"
+
 import { canonicalize } from "./util"
 import { isStringExtension } from "./types"
 
-/**
- * TODO  -- Description placeholder
- * @date 4/19/2022 - 12:17:08 PM
- *
- * @export
- * @class TextReplacerTarget
- * @typedef {TextReplacerTarget}
- * @template Selector extends string
- * @template Corpus extends Record<Selector, Record<string, string>>
- * @template Dictionary extends TextReplacerState<Selector, Corpus>
- * @extends {DeepStatefulComponent<Dictionary>}
- *
- * @source potato
- */
-export class TextReplacerTarget<
-  Selector extends string,
-  Corpus extends Record<Selector, Record<string, string>>,
-  Dictionary extends TextReplacerState<Selector, Corpus>
-> extends DeepStatefulComponent<Dictionary> {
+abstract class DataReplacerGenericTarget extends DeepStatefulComponent<ZTDataDictionary> {
   /**
    * Creates an instance of TextReplacerTarget.
    * @date 4/19/2022 - 12:17:08 PM
@@ -44,49 +27,99 @@ export class TextReplacerTarget<
    * @param {?string} [triggerLog]
    * @param {?OnErrorHandler} [onError]
    */
-  constructor(name: string, textCorpus: Dictionary, triggerLog?: string, onError?: OnErrorHandler) {
-    super(name, "", textCorpus, undefined, onError)
+  constructor(
+    name: string,
+    dataCorpus: ZTDataDictionary,
+    dataTargets: (keyof HTMLElement)[],
+    triggerLog?: string,
+    onError?: OnErrorHandler
+  ) {
+    super(name, "", dataCorpus, undefined, onError)
+    this._dataTargets = dataTargets
+
     this._components.ids.forEach((currentId) => {
-      const node = document.querySelector(
-        `[data-${canonicalize("id")}="${currentId}"]`
-      ) as HTMLElement
-      const replacementKey = node.innerText
-      this._components.setLocalState(currentId, replacementKey, "key")
-      this._components.setLocalState(currentId, replacementKey, "content")
-    })
-    this._components.sideEffectStateful((node, newText) => {
-      if (newText) {
-        if (triggerLog) {
-          // console.info(`${triggerLog}\n Data: ${newText}`);
+      //console.log("teas")
+      const node = document.querySelector(`[zt-id="${currentId}"]`) as HTMLElement
+      this._dataTargets.forEach((dataTarget) => {
+        const dataTagAttribute =
+          node.attributes.getNamedItem(`zt-${dataTarget.toLowerCase()}`) ?? undefined
+        const targetKey = dataTagAttribute ? dataTagAttribute.value : undefined
+
+        if (targetKey) {
+          this._components.setLocalState(currentId, targetKey, `${dataTarget}_key`)
+
+          this._components.setLocalState(
+            currentId,
+            this._sharedStateValue.corpus[this._sharedStateValue.selected][targetKey],
+            `${dataTarget}_value`
+          )
+
+          this._components.sideEffectLocalStatefulFor(
+            currentId,
+            (node, newValue) => {
+              if (newValue) {
+                if (triggerLog) {
+                  console.info(`${triggerLog}\n Data: ${newValue}`)
+                }
+                if (dataTarget in node) {
+                  // This mess is here just to be able to redefine a property without things dying or TS complaining.
+                  // It works, but we lose the typing guarantees. The solution is add a type guard.
+
+                  // TODO add type guard to preserve guarantees in the rewriting of the HTMLElement properties
+
+                  Object.defineProperty(node, dataTarget, { configurable: true })
+                  delete node[dataTarget]
+                  const newNode = node as IntendedAny
+                  newNode[dataTarget] = newValue
+
+                  node = Object.assign(node, newNode)
+                }
+              }
+              return node
+            },
+            `${dataTarget}_value`
+          )
+        } else {
+          throw new Error(`No key-${dataTarget} found for component ${name}, instance ${currentId}`)
         }
-        node.innerText = newText
-      }
-      return node
-    }, "content")
+      })
+    })
+
     this._sharedState.subscribe({
       next: (sharedState) => {
-        this._components.ids.forEach((id) => {
-          // console.log(
-          //     `data:\n id: ${id}, selected: ${
-          //         sharedState.selected
-          //     }, key: ${this._components.getLocalState(
-          //         id,
-          //         "key"
-          //     )}, text: ${
-          //         sharedState.corpus[sharedState.selected][
-          //             this._components.getLocalState(id, "key")
-          //         ]
-          //     }`
-          // );
-          this._components.setLocalState(
-            id,
-            sharedState.corpus[sharedState.selected][this._components.getLocalState(id, "key")],
-            "content"
-          )
+        this._components.ids.forEach((currentId) => {
+          this._dataTargets.forEach((dataTarget) => {
+            const currentKey = this._components.getLocalState(currentId, `${dataTarget}_key`)
+            if (currentKey) {
+              const storedValue = sharedState.corpus[sharedState.selected][currentKey]
+              if (storedValue) {
+                this._components.setLocalState(currentId, storedValue, `${dataTarget}_value`)
+              } else {
+                throw new Error(
+                  `No key ${currentKey} found in the selected corpus ${
+                    sharedState.corpus[sharedState.selected]
+                  }`
+                )
+              }
+            }
+          })
         })
       },
       error: onError
     })
+  }
+
+  _dataTargets: (keyof HTMLElement)[]
+}
+
+export class TextReplacerTarget extends DataReplacerGenericTarget {
+  constructor(
+    name: string,
+    textCorpus: ZTDataDictionary,
+    triggerLog?: string,
+    onError?: OnErrorHandler
+  ) {
+    super(name, textCorpus, ["innerText"], triggerLog, onError)
   }
 }
 
@@ -102,40 +135,36 @@ export class TextReplacerTarget<
  * @template Dictionary extends TextReplacerState<Selector, Corpus>
  * @extends {Component}
  */
-export class TextReplacerSelector<
-  Selector extends string,
-  Corpus extends Record<Selector, Record<string, string>>,
-  Dictionary extends TextReplacerState<Selector, Corpus>
-> extends Component {
+export class DataReplacerSelector extends Component {
   /**
    * Creates an instance of TextReplacerSelector.
    * @date 4/19/2022 - 12:17:08 PM
    *
    * @constructor
    * @param {string} name
-   * @param {string} dataTag
+   * @param {string} corpusKey
    * @param {string} triggerEvent
-   * @param {DeepStatefulComponent<Dictionary>} target
+   * @param {DeepStatefulComponent<Dictionary>} targetComponent
    * @param {?string} [triggerLog]
    * @param {?OnErrorHandler} [onError]
    */
   constructor(
     name: string,
-    dataTag: string,
+    corpusKey: string,
     triggerEvent: string,
-    target: DeepStatefulComponent<Dictionary>,
+    targetComponent: DeepStatefulComponent<ZTDataDictionary>,
     triggerLog?: string,
     onError?: OnErrorHandler
   ) {
     super(name, undefined, onError)
     this.onEventLocal(triggerEvent, (node) => {
-      const data = node.getAttribute(dataTag)
+      const data = node.getAttribute(canonicalize(corpusKey).toLowerCase())
       if (data) {
         if (triggerLog) {
           // console.info(`${triggerLog}\n Data: ${data}`);
         }
-        target.transformSharedState((state) => {
-          if (isStringExtension<Selector, Dictionary["corpus"]>(data, state.corpus)) {
+        targetComponent.transformSharedState((state) => {
+          if (isStringExtension<string, ZTDataDictionary["corpus"]>(data, state.corpus)) {
             state.selected = data
           }
           return state

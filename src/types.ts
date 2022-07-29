@@ -11,7 +11,8 @@
  */
 import type { Node, State, StatefulNode } from "./base"
 import { Observer, Subscription } from "rxjs"
-import type { OmitProperties, WritableKeys } from "ts-essentials"
+import type { OmitProperties, Writable, WritableKeys } from "ts-essentials"
+import type { DeepStatefulComponent } from "./component"
 
 /**
  * TODO  -- Description placeholder
@@ -31,6 +32,23 @@ export type IntendedAny = any
  *
  */ // eslint-disable-next-line @typescript-eslint/ban-types
 export type DirectlyEditableHTMLProps = WritableKeys<OmitProperties<HTMLElement, object | Function>>
+
+export type EditableHTMLElement = Writable<HTMLElement>
+
+export const isDirectlyEditableHTMLProp = (prop: string): prop is DirectlyEditableHTMLProps => {
+  const dummyElement = {} as HTMLElement
+  const dummyPropList = Object.keys(dummyElement) as DirectlyEditableHTMLProps[]
+  return dummyPropList.indexOf(prop as DirectlyEditableHTMLProps) !== -1
+}
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:18:36 PM
+ *
+ * @export
+ * @typedef {HTMLProps}
+ *
+ */ // eslint-disable-next-line @typescript-eslint/ban-types
+export type HTMLProps = keyof OmitProperties<HTMLElement, Function>
 
 /**
  * TODO  -- Description placeholder
@@ -485,3 +503,6 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
     observer: Partial<Observer<HTMLElement>>
   ): Subscription[] | ZTComponentErrorEither<NodeType, this>
 }
+export type ZTDataSelector = string
+export type ZTDataCorpus = Record<ZTDataSelector, Record<string, unknown>>
+export type ZTDataDictionary = DataReplacerState<ZTDataSelector, ZTDataCorpus>
