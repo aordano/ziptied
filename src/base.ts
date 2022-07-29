@@ -655,7 +655,7 @@ export class Node {
     this._isComponent = isComponent ?? false
     if (this._isComponent) {
       this._nodeElement = () => {
-        const element = document.querySelector(`[data-zt-id="${id}"]`) as HTMLElement | null
+        const element = document.querySelector(`[zt-id="${id}"]`) as HTMLElement | null
         if (!element) {
           throw new Error("No elements found; can't add reactivity to a node that does not exist.")
         } else {

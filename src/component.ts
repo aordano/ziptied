@@ -46,12 +46,12 @@ abstract class BaseComponentTemplate<NodeType extends Node>
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @constructor
-   * @param {string} className
+   * @param {string} component
    * @param {string[]} ids
    * @param {Record<string, NodeType>} _elements
    */
-  constructor(className: string, ids: string[], _elements: Record<string, NodeType>) {
-    this.name = className
+  constructor(component: string, ids: string[], _elements: Record<string, NodeType>) {
+    this.name = component
     this.ids = ids
     this._elements = _elements
   }
@@ -337,13 +337,13 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @constructor
-   * @param {string} className
+   * @param {string} component
    * @param {?NodeAction<IntendedAny>} [prepare]
    * @param {?Observer<HTMLElement>["error"]} [onError]
    * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
    */
   constructor(
-    protected className: string,
+    protected component: string,
     prepare?: NodeAction<IntendedAny>,
     onError?: Observer<HTMLElement>["error"],
     onLifecycle?: Observer<HTMLElement>["complete"]
@@ -353,15 +353,15 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
     Array.from(
       // Might look hacky to select by class instead of attribute but makes
       // bolting the component to elements much much easier and cleaner
-      document.getElementsByClassName(className) as HTMLCollectionOf<HTMLElement>
+      document.querySelectorAll(`[zt=${component}]`)
     ).forEach((element) => {
       const newId = unsafeID(20)
       const doesExist = () => {
-        const node = document.querySelector(`[data-${canonicalize("id")}="${newId}"]`)
+        const node = document.querySelector(`[zt-id="${newId}"]`)
         return !!node
       }
       if (!doesExist()) {
-        element.dataset.ztId = newId
+        element.setAttribute("zt-id", newId)
       }
       ids.push(newId)
       elements[newId] = new Node(newId, onError, onLifecycle, true)
@@ -370,7 +370,7 @@ class ComponentTemplate extends BaseComponentTemplate<Node> {
         elements[newId].fireAction("prepare")
       }
     })
-    super(className, ids, elements)
+    super(component, ids, elements)
   }
 }
 
@@ -389,14 +389,14 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @constructor
-   * @param {string} className
+   * @param {string} component
    * @param {*} initialState
    * @param {?NodeAction<IntendedAny>} [prepare]
    * @param {?Observer<HTMLElement>["error"]} [onError]
    * @param {?Observer<HTMLElement>["complete"]} [onLifecycle]
    */
   constructor(
-    protected className: string,
+    protected component: string,
     initialState: IntendedAny,
     prepare?: NodeAction<IntendedAny>,
     onError?: Observer<HTMLElement>["error"],
@@ -407,15 +407,15 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
     Array.from(
       // Might look hacky to select by class instead of attribute but makes
       // bolting the component to elements much much easier and cleaner
-      document.getElementsByClassName(className) as HTMLCollectionOf<HTMLElement>
+      document.querySelectorAll(`[zt=${component}]`)
     ).forEach((element) => {
       const newId = unsafeID(20)
       const doesExist = () => {
-        const node = document.querySelector(`[data-${canonicalize("id")}="${newId}"]`)
+        const node = document.querySelector(`[zt-id="${newId}"]`)
         return !!node
       }
       if (!doesExist()) {
-        element.dataset.ztId = newId
+        element.setAttribute("zt-id", newId)
       }
       ids.push(newId)
       elements[newId] = new StatefulNode(newId, initialState, onError, onLifecycle, true)
@@ -424,7 +424,7 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
         elements[newId].fireAction("prepare")
       }
     })
-    super(className, ids, elements)
+    super(component, ids, elements)
   }
 
   /**
@@ -808,9 +808,7 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
     this._components.addAction(eventName, action)
 
     this._components.ids.forEach((elementId: string) => {
-      const element = document.querySelector(
-        `[data-${canonicalize("id")}="${elementId}"]`
-      ) as HTMLElement | null
+      const element = document.querySelector(`[zt-id="${elementId}"]`) as HTMLElement | null
       if (element) {
         fromEvent(element, eventName).subscribe({
           next: (event) => {
@@ -854,7 +852,7 @@ export class Component extends BaseComponent<ComponentTemplate> {
     onError?: Observer<HTMLElement>["error"],
     onLifecycle?: Observer<HTMLElement>["complete"]
   ) {
-    const template = new ComponentTemplate(canonicalize(name), prepare, onError, onLifecycle)
+    const template = new ComponentTemplate(name, prepare, onError, onLifecycle)
     super(template)
   }
 }
@@ -889,7 +887,7 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
     onError?: Observer<HTMLElement>["error"],
     onLifecycle?: Observer<HTMLElement>["complete"]
   ) {
-    const template = new ComponentTemplate(canonicalize(name), prepare, onError, onLifecycle)
+    const template = new ComponentTemplate(name, prepare, onError, onLifecycle)
     super(template)
     this._sharedState = new State(initialSharedState)
     this._sharedStateValue = initialSharedState
@@ -1018,7 +1016,7 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
     onLifecycle?: Observer<HTMLElement>["complete"]
   ) {
     const template = new StatefulComponentTemplate(
-      canonicalize(name),
+      name,
       initialLocalState,
       prepare,
       onError,
@@ -1180,9 +1178,7 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
     this._components.addAction(`on${event}`, statefulAction)
 
     this._components.ids.forEach((elementId) => {
-      const element = document.querySelector(
-        `[data-${canonicalize("id")}="${elementId}"]`
-      ) as HTMLElement | null
+      const element = document.querySelector(`[zt-id="${elementId}"]`) as HTMLElement | null
       if (element) {
         fromEvent(element, event).subscribe({
           next: (event) => {
