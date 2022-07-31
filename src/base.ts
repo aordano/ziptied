@@ -9,6 +9,7 @@
 import { BehaviorSubject, Observer, Subject, Subscription, map } from "rxjs"
 import type {
   DirectlyEditableHTMLProps,
+  EditableHTMLProp,
   IntendedAny,
   NodeAction,
   NodeActionRef,
@@ -18,6 +19,7 @@ import type {
   Transform
 } from "./types"
 import { NodeActions } from "./actions"
+import { Ziptie } from "./builtin"
 
 /**
  * ## EditableNode
@@ -98,7 +100,7 @@ import { NodeActions } from "./actions"
  * @template EditableHTMLProp This generic extends HTMLElement[DirectlyEditableHTMLProps]
  * @category Reactive Elements
  */
-export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableHTMLProps]> {
+export class EditableNode {
   /**
    * ## Creates an instance of EditableNode.
    *
@@ -134,6 +136,8 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
     this._subscriptions = {}
     this._transforms = {}
     this._state = {}
+    this._name = id
+    Ziptie.registerNode(this)
   }
 
   /**
@@ -158,7 +162,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
   protected _subscriptions: Record<string, Subscription>
 
   /**
-   * ## State
+   * ## UnregisteredState
    *
    * This property contains the Subject that handles the updates and changes
    * to the current state of the element.
@@ -476,10 +480,19 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
 
     return this._state[property].subscribe(observer)
   }
-}
 
+  protected _name: string
+
+  public get name() {
+    return this._name
+  }
+
+  protected set name(value: string) {
+    this._name = value
+  }
+}
 /**
- * ## State
+ * ## UnregisteredState
  *
  * Base element that wraps a Subject to easily store state reactively.
  *
@@ -497,7 +510,7 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
  * To use this element, first you need to create a new instance of it:
  *
  * ```typescript
- * const state = new State("I am being stored");
+ * const state = new UnregisteredState("I am being stored");
  * ```
  *
  * You cannot imperatively access this value, but you can subscribe other element to its changes:
@@ -531,16 +544,16 @@ export class EditableNode<EditableHTMLProp extends HTMLElement[DirectlyEditableH
  * @date 4/19/2022 - 12:17:51 PM
  *
  * @export
- * @class State
- * @typedef {State}
+ * @class UnregisteredState
+ * @typedef {UnregisteredState}
  * @template Data
  * @category Reactive Data Handling
  */
-export class State<Data> {
+export class UnregisteredState<Data> {
   /**
-   * Creates an instance of State.
+   * Creates an instance of UnregisteredState.
    *
-   * @param {Data} initialState State to initialize the element with.
+   * @param {Data} initialState UnregisteredState to initialize the element with.
    *
    * @constructor
    * @date 4/19/2022 - 12:17:51 PM
@@ -548,6 +561,154 @@ export class State<Data> {
   constructor(public readonly initialState: Data) {
     this.initialState = initialState
     this._state = new BehaviorSubject<Data>(initialState)
+  }
+
+  /**
+   * ## UnregisteredState
+   *
+   * This property holds the reactive object managing the state.
+   *
+   * @protected
+   * @type {BehaviorSubject<Data>}
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * This is not part of the public API, is used internally to contain state.
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   */
+  protected _state: BehaviorSubject<Data>
+
+  /**
+   * ## Update
+   *
+   * This method updates the state and broadcasts the values to all subscribers.
+   *
+   * @public
+   * @param {Data} value Value to set the state to.
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * state.update("I am being updated");
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   */
+  public update(value: Data): void {
+    this._state.next(value)
+  }
+
+  /**
+   * ## Subscribe
+   *
+   * This method lets you attach an arbitrary Observer to the current state.
+   *
+   *
+   * @public
+   * @param {Partial<Observer<Data>>} observer
+   *
+   * ---
+   *
+   * ### Usage
+   *
+   * ```typescript
+   * const externalObserver = {next: (data) => console.log(data)};
+   *
+   * state.subscribe(externalObserver);
+   *
+   * state.update("I am being updated"); // console: "I am being updated"
+   * ```
+   *
+   * ---
+   *
+   * @date 4/19/2022 - 12:17:51 PM
+   * @returns {Subscription}
+   */
+  public subscribe(observer: Partial<Observer<Data>>): Subscription {
+    return this._state.subscribe(observer)
+  }
+}
+
+/**
+ * ## UnregisteredState
+ *
+ * Base element that wraps a Subject to easily store state reactively.
+ *
+ * It allows you to store a single type of value, and fire side effects every time it updates.
+ *
+ * ---
+ *
+ * ### Usage
+ *
+ * This element has two methods; `update` and `subscribe`.
+ *
+ * `update` lets you store a new value (of the same type) to the element state.
+ * `subscribe` lets you attach a callback to every change of the element state.
+ *
+ * To use this element, first you need to create a new instance of it:
+ *
+ * ```typescript
+ * const state = new UnregisteredState("I am being stored");
+ * ```
+ *
+ * You cannot imperatively access this value, but you can subscribe other element to its changes:
+ *
+ * ```typescript
+ * const externalObserver = {next: (data) => console.log(data)};
+ * state.subscribe(externalObserver);
+ *
+ * state.update("I am being updated"); // console: "I am being updated"
+ * ```
+ *
+ * ---
+ *
+ * ### Notes
+ *
+ * Due to the subscriber being a common Observer, you can add any kind of lifecycle callback to it. This allows you
+ * to handle dismounting the state element, or to add some cleanup logic:
+ *
+ * ```typescript
+ * const externalObserver2 = {
+ *    next: (data) => console.log(data),
+ *    finally: () => console.log("It's dead.")
+ * };
+ *
+ * const subscription = state.subscribe(externalObserver2);
+ *
+ * state.update("I am being updated again"); // console: "I am being updated again"
+ * subscription.unsubscribe(); // console: "It's dead."
+ * ```
+ *
+ * @date 4/19/2022 - 12:17:51 PM
+ *
+ * @export
+ * @class UnregisteredState
+ * @typedef {UnregisteredState}
+ * @template Data
+ * @category Reactive Data Handling
+ */
+export class State<Data> {
+  /**
+   * Creates an instance of UnregisteredState.
+   *
+   * @param {Data} initialState UnregisteredState to initialize the element with.
+   *
+   * @constructor
+   * @date 4/19/2022 - 12:17:51 PM
+   */
+  constructor(public readonly initialState: Data, name: string) {
+    this.initialState = initialState
+    this._state = new BehaviorSubject<Data>(initialState)
+    Ziptie.registerState(this, name)
   }
 
   /**
@@ -796,6 +957,9 @@ export class Node {
     defaultActionKeys.forEach((actionKey) => {
       this.addAction(actionKey, NodeActions[actionKey])
     })
+
+    this._name = id
+    Ziptie.registerNode(this)
   }
 
   /** ## Is Component
@@ -1030,6 +1194,16 @@ export class Node {
   public sideEffect(observer: Partial<Observer<HTMLElement>>): Subscription {
     return this._node.subscribe(observer)
   }
+
+  protected _name: string
+
+  public get name() {
+    return this._name
+  }
+
+  protected set name(value: string) {
+    this._name = value
+  }
 }
 
 /**
@@ -1065,10 +1239,13 @@ export class StatefulNode extends Node {
 
     this._states = {}
     this._stateValues = {}
-    this._states["default"] = new State(initialState)
+    this._states["default"] = new UnregisteredState(initialState)
     this._states["default"].subscribe({
       next: (value) => (this._stateValues["default"] = value)
     })
+
+    this._name = id
+    Ziptie.registerNode(this)
   }
 
   /**
@@ -1076,9 +1253,9 @@ export class StatefulNode extends Node {
    * @date 4/19/2022 - 12:17:51 PM
    *
    * @protected
-   * @type {Record<string, State<IntendedAny>>}
+   * @type {Record<string, UnregisteredState<IntendedAny>>}
    */
-  protected _states: Record<string, State<IntendedAny>>
+  protected _states: Record<string, UnregisteredState<IntendedAny>>
 
   /**
    * TODO  -- Description placeholder
@@ -1107,9 +1284,9 @@ export class StatefulNode extends Node {
    *
    * @public
    * @param {?string} [stateKey]
-   * @returns {State<IntendedAny>}
+   * @returns {UnregisteredState<IntendedAny>}
    */
-  public getStateObject(stateKey?: string): State<IntendedAny> {
+  public getStateObject(stateKey?: string): UnregisteredState<IntendedAny> {
     return this._states[stateKey ?? "default"]
   }
 
@@ -1128,7 +1305,7 @@ export class StatefulNode extends Node {
     if (this._states[stateKey ?? "default"]) {
       this._states[stateKey ?? "default"].update(newState)
     } else {
-      this._states[stateKey ?? "default"] = new State(newState)
+      this._states[stateKey ?? "default"] = new UnregisteredState(newState)
       this._states[stateKey ?? "default"].subscribe({
         next: (value) => (this._stateValues[stateKey ?? "default"] = value)
       })
@@ -1165,7 +1342,72 @@ export class StatefulNode extends Node {
         }
       })
     }
-    throw new Error(`State entry ${stateKey} does not exist for node ${this.id}`)
+    throw new Error(`UnregisteredState entry ${stateKey} does not exist for node ${this.id}`)
+  }
+
+  protected _name: string
+
+  public get name() {
+    return this._name
+  }
+
+  protected set name(value: string) {
+    this._name = value
+  }
+}
+
+/**
+ * TODO  -- Description placeholder
+ * @date 4/19/2022 - 12:17:51 PM
+ *
+ * @export
+ * @class UnregisteredStream
+ * @typedef {UnregisteredStream}
+ * @template Data
+ * @category Reactive Data Handling
+ */
+export class UnregisteredStream<Data> {
+  /**
+   * Creates an instance of UnregisteredStream.
+   * @date 4/19/2022 - 12:17:51 PM
+   *
+   * @constructor
+   */
+  constructor() {
+    this._state = new Subject<Data>()
+  }
+
+  /**
+   * TODO  -- Description placeholder
+   * @date 4/19/2022 - 12:17:50 PM
+   *
+   * @protected
+   * @type {Subject<Data>}
+   */
+  protected _state: Subject<Data>
+
+  /**
+   * TODO  -- Description placeholder
+   * @date 4/19/2022 - 12:17:50 PM
+   *
+   * @public
+   * @param {(data: unknown) => Data} transform
+   * @param {Observer<Data>} observer
+   * @returns {Subscription}
+   */
+  public subscribe(transform: (data: unknown) => Data, observer: Observer<Data>): Subscription {
+    return this._state.pipe(map(transform)).subscribe(observer)
+  }
+
+  /**
+   * TODO  -- Description placeholder
+   * @date 4/19/2022 - 12:17:50 PM
+   *
+   * @public
+   * @param {Data} value
+   */
+  public add(value: Data): void {
+    this._state.next(value)
   }
 }
 
@@ -1186,8 +1428,9 @@ export class Stream<Data> {
    *
    * @constructor
    */
-  constructor() {
+  constructor(name: string) {
     this._state = new Subject<Data>()
+    Ziptie.registerState(this, name)
   }
 
   /**

@@ -1,6 +1,4 @@
-export * from "./base"
-export * from "./builtin"
-export * as Component from "./component"
-export * as Events from "./events"
-export * as Actions from "./actions"
+import { Ziptie as ZT } from "./builtin"
 export * as Types from "./types"
+
+export default ZT

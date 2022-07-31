@@ -11,15 +11,23 @@
  */
 import type { ActiveEvent, BreakpointQuery, MediaQuery, TypeQuery, WidthQuery } from "./events"
 import type { Builtin, OmitProperties, Writable, WritableKeys } from "ts-essentials"
-import type { Component, DeepStatefulComponent, StatefulComponent } from "./component"
-import { DataReplacerSelector, DataReplacerTarget, TextReplacerTarget } from "./builtin"
-import type { EditableNode, Node, State, StatefulNode, Stream } from "./base"
+import { Component, DeepStatefulComponent, StatefulComponent } from "./component"
+import { DataReplacerSelector, DataReplacerTarget } from "./builtin"
+import type {
+  EditableNode,
+  Node,
+  State,
+  StatefulNode,
+  Stream,
+  UnregisteredState,
+  UnregisteredStream
+} from "./base"
 import { Observer, Subscription } from "rxjs"
 import UAParser, { UAParserInstance } from "ua-parser-js"
 
 declare global {
   interface Window {
-    __ZT: ZT
+    __ZT: ZT | undefined
   }
 }
 
@@ -43,6 +51,8 @@ export type IntendedAny = any
 export type DirectlyEditableHTMLProps = WritableKeys<OmitProperties<HTMLElement, object | Function>>
 
 export type EditableHTMLElement = Writable<HTMLElement>
+
+export type EditableHTMLProp = HTMLElement[DirectlyEditableHTMLProps]
 
 export const isDirectlyEditableHTMLProp = (prop: string): prop is DirectlyEditableHTMLProps => {
   const dummyElement = {} as HTMLElement
@@ -346,16 +356,16 @@ export interface ZTStatefulComponentError<Template> extends ZTComponentError<Tem
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
    *
-   * @type {?State<any>}
+   * @type {?UnregisteredState<any>}
    */
-  sharedState?: State<IntendedAny>
+  sharedState?: UnregisteredState<IntendedAny>
   /**
    * TODO  -- Description placeholder
    * @date 4/19/2022 - 12:18:36 PM
    *
-   * @type {?State<any>}
+   * @type {?UnregisteredState<any>}
    */
-  localState?: State<IntendedAny>
+  localState?: UnregisteredState<IntendedAny>
 }
 
 /**
@@ -516,7 +526,7 @@ export type ZTDataSelector = string
 export type ZTDataCorpus = Record<ZTDataSelector, Record<string, unknown>>
 export type ZTDataDictionary = DataReplacerState<ZTDataSelector, ZTDataCorpus>
 
-export type ZTNodeVariants = EditableNode<DirectlyEditableHTMLProps> | Node | StatefulNode
+export type ZTNodeVariants = EditableNode | Node | StatefulNode
 export type ZTQueryVariants =
   | MediaQuery
   | WidthQuery
@@ -527,10 +537,48 @@ export type ZTGenericComponentVariants =
   | Component
   | StatefulComponent<unknown>
   | DeepStatefulComponent<unknown>
-export type ZTBuiltinComponentVarints =
-  | DataReplacerSelector
-  | DataReplacerTarget
-  | TextReplacerTarget
+export type ZTBuiltinComponentVarints = DataReplacerSelector | DataReplacerTarget
+
+export enum ComponentTypes {
+  Component = "Component",
+  StatefulComponent = "StatefulComponent",
+  DeepStatefulComponent = "DeepStatefulComponent",
+  BaseComponent = "BaseComponent",
+  DataReplacerTarget = "DataReplacerTarget",
+  DataReplacerSelector = "DataReplacerSelector"
+}
+
+export class ComponentGuard {
+  static isComponent(component: IntendedAny): component is Component {
+    return component.type === ComponentTypes.Component
+  }
+  static isStatefulComponent<T>(
+    component: IntendedAny,
+    state: IntendedAny
+  ): component is StatefulComponent<T> {
+    return (
+      component.type === ComponentTypes.StatefulComponent &&
+      Object.getOwnPropertyDescriptors((component as StatefulComponent<T>).sharedState) ===
+        Object.getOwnPropertyDescriptors(state)
+    )
+  }
+  static isDeepStatefulComponent<T>(
+    component: IntendedAny,
+    state: IntendedAny
+  ): component is DeepStatefulComponent<T> {
+    return (
+      component.type === ComponentTypes.DeepStatefulComponent &&
+      Object.getOwnPropertyDescriptors((component as DeepStatefulComponent<T>).sharedState) ===
+        Object.getOwnPropertyDescriptors(state)
+    )
+  }
+  static isDataReplacerTarget(component: IntendedAny): component is DataReplacerTarget {
+    return component.type === ComponentTypes.DataReplacerTarget
+  }
+  static isDataReplacerSelector(component: IntendedAny): component is DataReplacerSelector {
+    return component.type === ComponentTypes.DataReplacerSelector
+  }
+}
 
 export type BaseUIMediaStateBreakpointVariantsZT = "sm" | "md" | "lg" | "xl" | "xxl"
 export type BaseUIMediaStateTypesVariantsZT =
@@ -568,27 +616,39 @@ export interface BaseUIMediaStateZT {
   userAgent: UAParser.IResult
   cursorPosition: ActiveEvent<Window, { x: number; y: number }>
   cursorOverElement: ActiveEvent<Window, Element | null>
-  _userProvided?: Record<string, State<unknown>>
 }
 
 export interface BaseUIStateZT {
   media: BaseUIMediaStateZT
   events?: Record<string, ZTEventVariants>
-  [x: string]:
-    | Record<string, State<unknown> | ZTQueryVariants | ZTEventVariants>
-    | BaseUIMediaStateZT
-    | undefined
+  _userProvided?: Record<
+    string,
+    ZTQueryVariants | ZTEventVariants | State<unknown> | Stream<unknown>
+  >
 }
 
-export interface ZT extends Record<string, BaseStateZT | BaseUIStateZT> {
+export interface ZT {
   UI: BaseUIStateZT
+  state: Record<string, BaseStateZT>
+}
+
+export enum EntryTypesZT {
+  state = "state",
+  UI = "UI",
+  node = "node",
+  component = "component"
 }
 
 export interface BaseStateZT extends Record<string, unknown> {
-  components: Record<string, ZTBuiltinComponentVarints | ZTGenericComponentVariants> | undefined
+  components: Record<
+    string,
+    | DataReplacerTarget
+    | DataReplacerSelector
+    | DeepStatefulComponent<unknown>
+    | StatefulComponent<unknown>
+    | Component
+    | undefined
+  >
   nodes: Record<string, ZTNodeVariants>
-  state: {
-    data: Record<string, State<unknown>>
-    stream: Record<string, Stream<unknown>>
-  }
+  state: Record<string, Stream<unknown> | State<unknown>>
 }

@@ -13,7 +13,8 @@
 // TODO Refactor as a module with templates and a module with components,
 // this file is too large
 
-import type {
+import {
+  ComponentTypes,
   IBaseComponentTemplate,
   IntendedAny,
   NodeAction,
@@ -23,7 +24,7 @@ import type {
   Transform,
   ZTComponentErrorEither
 } from "./types"
-import { Node, State, StatefulNode } from "./base"
+import { Node, StatefulNode, UnregisteredState } from "./base"
 import { Observer, Subscription, fromEvent } from "rxjs"
 import { buildAccessError, canonicalize, elementAccessCheck, unsafeID } from "./util"
 
@@ -460,12 +461,12 @@ class StatefulComponentTemplate extends BaseComponentTemplate<StatefulNode> {
    * @public
    * @param {string} id
    * @param {?string} [stateKey]
-   * @returns {(State<IntendedAny> | ZTComponentErrorEither<StatefulNode, this>)}
+   * @returns {(UnregisteredState<IntendedAny> | ZTComponentErrorEither<StatefulNode, this>)}
    */
   public getLocalStateObject(
     id: string,
     stateKey?: string
-  ): State<IntendedAny> | ZTComponentErrorEither<StatefulNode, this> {
+  ): UnregisteredState<IntendedAny> | ZTComponentErrorEither<StatefulNode, this> {
     if (elementAccessCheck(id, "element", this.name, this.ids)) {
       return this._elements[id].getStateObject(stateKey)
     }
@@ -606,7 +607,10 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
   constructor(components: Template) {
     // TODO Handle SharedState initialization
     this._components = components
+    this.type = ComponentTypes.BaseComponent
   }
+
+  public type: ComponentTypes
 
   /**
    * TODO  -- Description placeholder
@@ -745,14 +749,14 @@ abstract class BaseComponent<Template extends BaseComponentTemplate<Node>> {
    * @template Data
    * @param {string} effectName
    * @param {NodeAction<Data>} action
-   * @param {State<Data>} stateHolder
+   * @param {UnregisteredState<Data>} stateHolder
    * @param {?OnErrorHandler} [onError]
    * @param {?OnLifecycleHandler} [onLifecycle]
    */
   public addSideEffect<Data>(
     effectName: string,
     action: NodeAction<Data>,
-    stateHolder: State<Data>,
+    stateHolder: UnregisteredState<Data>,
     onError?: OnErrorHandler,
     onLifecycle?: OnLifecycleHandler
   ) {
@@ -872,6 +876,7 @@ export class Component extends BaseComponent<ComponentTemplate> {
   ) {
     const template = new ComponentTemplate(name, prepare, onError, onLifecycle)
     super(template)
+    this.type = ComponentTypes.Component
   }
 }
 
@@ -907,11 +912,12 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
   ) {
     const template = new ComponentTemplate(name, prepare, onError, onLifecycle)
     super(template)
-    this._sharedState = new State(initialSharedState)
+    this._sharedState = new UnregisteredState(initialSharedState)
     this._sharedStateValue = initialSharedState
     this._sharedState.subscribe({
       next: (value) => (this._sharedStateValue = value)
     })
+    this.type = ComponentTypes.StatefulComponent
   }
 
   /**
@@ -919,9 +925,9 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @protected
-   * @type {State<SharedState>}
+   * @type {UnregisteredState<SharedState>}
    */
-  protected _sharedState: State<SharedState>
+  protected _sharedState: UnregisteredState<SharedState>
 
   /**
    * TODO  -- Description placeholder
@@ -957,9 +963,9 @@ export class StatefulComponent<SharedState> extends BaseComponent<ComponentTempl
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @readonly
-   * @type {State<SharedState>}
+   * @type {UnregisteredState<SharedState>}
    */
-  get sharedStateObject(): State<SharedState> {
+  get sharedStateObject(): UnregisteredState<SharedState> {
     return this._sharedState
   }
 
@@ -1041,11 +1047,12 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
       onLifecycle
     )
     super(template)
-    this._sharedState = new State(initialSharedState)
+    this._sharedState = new UnregisteredState(initialSharedState)
     this._sharedStateValue = initialSharedState
     this._sharedState.subscribe({
       next: (value) => (this._sharedStateValue = value)
     })
+    this.type = ComponentTypes.DeepStatefulComponent
   }
 
   /**
@@ -1053,9 +1060,9 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @protected
-   * @type {State<SharedState>}
+   * @type {UnregisteredState<SharedState>}
    */
-  protected _sharedState: State<SharedState>
+  protected _sharedState: UnregisteredState<SharedState>
 
   /**
    * TODO  -- Description placeholder
@@ -1091,9 +1098,9 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
    * @date 4/19/2022 - 12:14:08 PM
    *
    * @readonly
-   * @type {State<SharedState>}
+   * @type {UnregisteredState<SharedState>}
    */
-  get sharedStateObject(): State<SharedState> {
+  get sharedStateObject(): UnregisteredState<SharedState> {
     return this._sharedState
   }
 
@@ -1143,14 +1150,14 @@ export class DeepStatefulComponent<SharedState> extends BaseComponent<StatefulCo
    * @template SharedState
    * @param {string} effectName
    * @param {NodeAction<{ local: LocalState; shared: SharedState }>} action
-   * @param {State<SharedState>} stateHolder
+   * @param {UnregisteredState<SharedState>} stateHolder
    * @param {?OnErrorHandler} [onError]
    * @param {?OnLifecycleHandler} [onLifecycle]
    */
   public addSideEffectStateful<LocalState, SharedState>(
     effectName: string,
     action: NodeAction<{ local: LocalState; shared: SharedState }>,
-    stateHolder: State<SharedState>,
+    stateHolder: UnregisteredState<SharedState>,
     onError?: OnErrorHandler,
     onLifecycle?: OnLifecycleHandler
   ) {

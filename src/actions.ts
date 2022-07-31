@@ -24,11 +24,11 @@ import { IntendedAny, NodeActionVoidEither } from "./types"
  *
  * @date 4/19/2022 - 12:18:05 PM
  *
- * @template State Type of the state to set.
- * @param {State} value Value to set.
- * @returns {State}
+ * @template UnregisteredState Type of the state to set.
+ * @param {UnregisteredState} value Value to set.
+ * @returns {UnregisteredState}
  */
-const arbitrarySet = <State>(value: State): State => {
+const arbitrarySet = <UnregisteredState>(value: UnregisteredState): UnregisteredState => {
   return value
 }
 
@@ -43,12 +43,15 @@ const arbitrarySet = <State>(value: State): State => {
  *
  * @date 4/19/2022 - 12:18:05 PM
  *
- * @template State Type of the state to mutate.
- * @param {State} value Value to mutate.
- * @param {(value: State) => State} transform Transformation function.
- * @returns {State}
+ * @template UnregisteredState Type of the state to mutate.
+ * @param {UnregisteredState} value Value to mutate.
+ * @param {(value: UnregisteredState) => UnregisteredState} transform Transformation function.
+ * @returns {UnregisteredState}
  */
-const arbitraryTransform = <State>(value: State, transform: (value: State) => State): State => {
+const arbitraryTransform = <UnregisteredState>(
+  value: UnregisteredState,
+  transform: (value: UnregisteredState) => UnregisteredState
+): UnregisteredState => {
   return transform(value)
 }
 
