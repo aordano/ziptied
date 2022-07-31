@@ -10,9 +10,11 @@
  * @category Standard Components
  */
 
+import { ActiveEvent, BreakpointQuery, TypeQuery, WidthQuery } from "./events"
+import type { BaseStateZT, IntendedAny, OnErrorHandler, ZT, ZTDataDictionary } from "./types"
 import { Component, DeepStatefulComponent } from "./component"
-import type { IntendedAny, OnErrorHandler, TextReplacerState, ZTDataDictionary } from "./types"
 
+import { UAParser } from "ua-parser-js"
 import { canonicalize } from "./util"
 import { isStringExtension } from "./types"
 
@@ -112,6 +114,18 @@ abstract class DataReplacerGenericTarget extends DeepStatefulComponent<ZTDataDic
   _dataTargets: (keyof HTMLElement)[]
 }
 
+export class DataReplacerTarget extends DataReplacerGenericTarget {
+  constructor(
+    name: string,
+    dataCorpus: ZTDataDictionary,
+    dataTarget: (keyof HTMLElement)[],
+    triggerLog?: string,
+    onError?: OnErrorHandler
+  ) {
+    super(name, dataCorpus, dataTarget, triggerLog, onError)
+  }
+}
+
 export class TextReplacerTarget extends DataReplacerGenericTarget {
   constructor(
     name: string,
@@ -172,5 +186,59 @@ export class DataReplacerSelector extends Component {
       }
       return node
     })
+  }
+}
+
+export class Ziptie<BaseState extends BaseStateZT> {
+  constructor(name: string, persistedState?: BaseState) {
+    const baseStateUI = {
+      media: {
+        breakpoint: new BreakpointQuery({
+          sm: new WidthQuery(640),
+          md: new WidthQuery(768, 641),
+          lg: new WidthQuery(1024, 769),
+          xl: new WidthQuery(1280, 1025),
+          xxl: new WidthQuery(undefined, 1281)
+        }),
+        type: new TypeQuery(),
+        width: new ActiveEvent<Window, number>("resize", window, (onResize) => {
+          return onResize.target?.screen.availWidth
+        }),
+        height: new ActiveEvent<Window, number>("resize", window, (onResize) => {
+          return onResize.target?.screen.availHeight
+        }),
+        userAgent: UAParser(window.navigator.userAgent),
+        cursorPosition: new ActiveEvent<Window, { x: number; y: number }>(
+          "mousemove",
+          window,
+          (onMouseMove) => {
+            return { x: onMouseMove.x, y: onMouseMove.y }
+          }
+        ),
+        cursorOverElement: new ActiveEvent<Window, Element | null>(
+          "mousemove",
+          window,
+          (onMouseMove) => {
+            return document.elementFromPoint(onMouseMove.x, onMouseMove.y)
+          }
+        )
+      }
+    }
+
+    const baseState: ZT = {
+      [name]: {
+        state: {
+          data: {},
+          stream: {}
+        },
+        nodes: {},
+        components: undefined
+      },
+      UI: baseStateUI
+    }
+
+    window.__ZT = window.__ZT
+      ? Object.assign(window.__ZT, Object.assign(baseState, persistedState))
+      : Object.assign(baseState, persistedState)
   }
 }

@@ -9,10 +9,19 @@
  * @module
  * @category Types
  */
-import type { Node, State, StatefulNode } from "./base"
+import type { ActiveEvent, BreakpointQuery, MediaQuery, TypeQuery, WidthQuery } from "./events"
+import type { Builtin, OmitProperties, Writable, WritableKeys } from "ts-essentials"
+import type { Component, DeepStatefulComponent, StatefulComponent } from "./component"
+import { DataReplacerSelector, DataReplacerTarget, TextReplacerTarget } from "./builtin"
+import type { EditableNode, Node, State, StatefulNode, Stream } from "./base"
 import { Observer, Subscription } from "rxjs"
-import type { OmitProperties, Writable, WritableKeys } from "ts-essentials"
-import type { DeepStatefulComponent } from "./component"
+import UAParser, { UAParserInstance } from "ua-parser-js"
+
+declare global {
+  interface Window {
+    __ZT: ZT
+  }
+}
 
 /**
  * TODO  -- Description placeholder
@@ -506,3 +515,80 @@ export interface IBaseComponentTemplate<NodeType extends Node> {
 export type ZTDataSelector = string
 export type ZTDataCorpus = Record<ZTDataSelector, Record<string, unknown>>
 export type ZTDataDictionary = DataReplacerState<ZTDataSelector, ZTDataCorpus>
+
+export type ZTNodeVariants = EditableNode<DirectlyEditableHTMLProps> | Node | StatefulNode
+export type ZTQueryVariants =
+  | MediaQuery
+  | WidthQuery
+  | TypeQuery
+  | BreakpointQuery<BaseUIMediaStateDefaultBreakpointsZT>
+export type ZTEventVariants = ActiveEvent<unknown, unknown>
+export type ZTGenericComponentVariants =
+  | Component
+  | StatefulComponent<unknown>
+  | DeepStatefulComponent<unknown>
+export type ZTBuiltinComponentVarints =
+  | DataReplacerSelector
+  | DataReplacerTarget
+  | TextReplacerTarget
+
+export type BaseUIMediaStateBreakpointVariantsZT = "sm" | "md" | "lg" | "xl" | "xxl"
+export type BaseUIMediaStateTypesVariantsZT =
+  | "all"
+  | "braille"
+  | "embossed"
+  | "hadnheld"
+  | "print"
+  | "projection"
+  | "screen"
+  | "speech"
+  | "tty"
+  | "tv"
+
+export interface BaseUIMediaStateDefaultBreakpointsZT extends Record<string, WidthQuery> {
+  sm: WidthQuery
+  md: WidthQuery
+  lg: WidthQuery
+  xl: WidthQuery
+  xxl: WidthQuery
+}
+
+type ExtendedEventTarget<Target> = Target & EventTarget
+
+export interface ArbitraryEvent<Target> extends Event, MouseEvent {
+  target: ExtendedEventTarget<Target>
+}
+
+// TODO implement media tech
+export interface BaseUIMediaStateZT {
+  type: TypeQuery
+  breakpoint: BreakpointQuery<BaseUIMediaStateDefaultBreakpointsZT>
+  width: ActiveEvent<Window, number>
+  height: ActiveEvent<Window, number>
+  userAgent: UAParser.IResult
+  cursorPosition: ActiveEvent<Window, { x: number; y: number }>
+  cursorOverElement: ActiveEvent<Window, Element | null>
+  _userProvided?: Record<string, State<unknown>>
+}
+
+export interface BaseUIStateZT {
+  media: BaseUIMediaStateZT
+  events?: Record<string, ZTEventVariants>
+  [x: string]:
+    | Record<string, State<unknown> | ZTQueryVariants | ZTEventVariants>
+    | BaseUIMediaStateZT
+    | undefined
+}
+
+export interface ZT extends Record<string, BaseStateZT | BaseUIStateZT> {
+  UI: BaseUIStateZT
+}
+
+export interface BaseStateZT extends Record<string, unknown> {
+  components: Record<string, ZTBuiltinComponentVarints | ZTGenericComponentVariants> | undefined
+  nodes: Record<string, ZTNodeVariants>
+  state: {
+    data: Record<string, State<unknown>>
+    stream: Record<string, Stream<unknown>>
+  }
+}
