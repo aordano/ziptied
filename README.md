@@ -1,14 +1,14 @@
 # Ziptied
 
-Modernizing static sites the easy way. 
+Modernizing static sites the easy way.
 
 This is still a WIP and should not be used for anything critical. Watch out for a 1.0 release.
 
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/8479c7e72cdf4e1b81d1acbe2d37f660)](https://www.codacy.com/gh/nodoambiental/ziptied/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=nodoambiental/ziptied&amp;utm_campaign=Badge_Grade) [![DeepSource](https://deepsource.io/gh/nodoambiental/ziptied.svg/?label=active+issues&show_trend=true&token=wB-9fMynOQMJ1Kkt_0wiegLw)](https://deepsource.io/gh/nodoambiental/ziptied/?ref=repository-badge)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/bc0a4771664d450e85f0716fe9778f29)](https://www.codacy.com/gh/aordano/ziptied/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=aordano/ziptied&amp;utm_campaign=Badge_Grade) [![DeepSource](https://deepsource.io/gh/aordano/ziptied.svg/?label=active+issues&show_trend=true&token=LgTp3e2vwfD3TZo7ZafjES1p)](https://deepsource.io/gh/aordano/ziptied/?ref=repository-badge)
 
-![GitHub last commit](https://img.shields.io/github/last-commit/nodoambiental/ziptied) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/nodoambiental/ziptied)
+![GitHub last commit](https://img.shields.io/github/last-commit/aordano/ziptied) ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/aordano/ziptied)
 
-![License](https://img.shields.io/github/license/nodoambiental/ziptied) ![GitHub issues](https://img.shields.io/github/issues/nodoambiental/ziptied)
+![License](https://img.shields.io/github/license/aordano/ziptied) ![GitHub issues](https://img.shields.io/github/issues/aordano/ziptied)
 
 ## What is ziptied?
 

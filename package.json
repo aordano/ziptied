@@ -1,6 +1,6 @@
 {
     "name": "ziptied",
-    "version": "0.1.12",
+    "version": "0.2.1",
     "description": "Easy reactive framework to ziptie on top of static sites for reactivity and modern features.",
     "main": "dist/index.js",
     "unpkg": "umd/ziptied.js",
@@ -32,6 +32,7 @@
         "@commitlint/cz-commitlint": "^16.0.0",
         "@swc/cli": "^0.1.57",
         "@swc/core": "^1.2.172",
+        "@types/ua-parser-js": "^0.7.36",
         "@typescript-eslint/eslint-plugin": "^5.20.0",
         "@typescript-eslint/parser": "^5.20.0",
         "ava": "^4.2.0",
@@ -62,7 +63,8 @@
         }
     },
     "dependencies": {
-        "rxjs": "^7.5.5"
+        "rxjs": "^7.5.5",
+        "ua-parser-js": "^1.0.2"
     },
     "ava": {
         "typescript": {
